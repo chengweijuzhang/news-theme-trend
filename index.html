@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f0f">
+<title>每日新闻联播速递 · AI 解读</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --fg: #1a1a1a;
+    --muted: #888;
+    --card: #fff;
+    --border: #e5e5e0;
+    --accent: #c8102e;
+    --accent-light: #fde8eb;
+    --success: #2d7a3e;
+    --highlight-bg: rgba(255, 213, 79, 0.45);
+    --highlight-fg: inherit;
+    --shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f0f0f;
+      --fg: #e8e8e8;
+      --muted: #999;
+      --card: #1a1a1a;
+      --border: #2a2a2a;
+      --accent: #ff4d6a;
+      --accent-light: #2a1418;
+      --success: #4ade80;
+      --highlight-bg: rgba(255, 213, 79, 0.25);
+      --highlight-fg: inherit;
+      --shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    margin: 0;
+    padding: 0;
+    line-height: 1.75;
+    font-size: 16px;
+  }
+  .progress-bar {
+    position: fixed; top: 0; left: 0;
+    height: 3px;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.1s ease;
+    z-index: 100;
+  }
+  .progress-label {
+    position: fixed;
+    top: env(safe-area-inset-top, 0);
+    right: 12px;
+    padding: 4px 10px;
+    margin-top: 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--muted);
+    z-index: 99;
+    box-shadow: var(--shadow);
+  }
+  .streak-badge {
+    position: fixed;
+    top: env(safe-area-inset-top, 0);
+    left: 12px;
+    padding: 4px 10px;
+    margin-top: 8px;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
+    font-size: 12px;
+    color: var(--accent);
+    z-index: 99;
+    box-shadow: var(--shadow);
+    font-weight: 600;
+    display: none;
+  }
+  .streak-badge.show { display: block; }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 60px 20px 80px;
+    padding-top: calc(60px + env(safe-area-inset-top, 0));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0));
+  }
+  .header {
+    border-bottom: 2px solid var(--accent);
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+  }
+  .title {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0 0 4px;
+    letter-spacing: 0.5px;
+  }
+  .date {
+    color: var(--muted);
+    font-size: 14px;
+    font-variant-numeric: tabular-nums;
+  }
+  .loading, .error {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .loading-stage {
+    display: block;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .error { color: var(--accent); }
+  .ai-section {
+    background: linear-gradient(135deg, var(--accent-light), var(--card));
+    border: 1px solid var(--accent);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .ai-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: var(--accent);
+    color: white;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .ai-summary {
+    font-size: 17px;
+    line-height: 1.8;
+    margin: 0 0 20px;
+    color: var(--fg);
+  }
+  .highlights-title {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .highlights {
+    margin: 0; padding: 0;
+    list-style: none;
+    counter-reset: highlight;
+  }
+  .highlights li {
+    padding: 10px 0 10px 28px;
+    border-bottom: 1px dashed var(--border);
+    position: relative;
+    font-size: 15px;
+  }
+  .highlights li:last-child { border-bottom: none; }
+  .highlights li::before {
+    content: counter(highlight);
+    counter-increment: highlight;
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    width: 20px; height: 20px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 20px;
+  }
+  .news-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .news-item h3 {
+    font-size: 18px;
+    margin: 0;
+    line-height: 1.4;
+    color: var(--fg);
+  }
+  .news-one-line {
+    font-size: 14px;
+    color: var(--accent);
+    font-style: italic;
+    margin: 0 0 14px;
+    padding: 8px 12px;
+    background: var(--accent-light);
+    border-radius: 6px;
+    border-left: 3px solid var(--accent);
+  }
+  .news-item p {
+    margin: 0 0 10px;
+    color: var(--fg);
+  }
+  .news-item p:last-child { margin-bottom: 0; }
+  /* 关键词高亮：柔和琥珀黄底，文字保持原色，类似纸质书荧光笔 */
+  .kw {
+    background: var(--highlight-bg);
+    padding: 1px 3px;
+    border-radius: 3px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .section-label {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 40px 0 16px;
+    padding-left: 4px;
+  }
+  
+  /* 时效分组头 */
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 12px;
+    padding: 0 4px;
+    flex-wrap: wrap;
+  }
+  .group-label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+  }
+  .group-short { background: #e67e22; }
+  .group-mid { background: #3498db; }
+  .group-long { background: #6c5ce7; }
+  .group-other { background: var(--muted); }
+  .group-desc {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .group-count {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  /* 新闻标题 + 领域小标签同行 */
+  .news-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .news-head h3 {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+  }
+  .domain-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  
+  /* 小主题标签（在标题下方） */
+  .topic-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 6px 0 12px;
+  }
+  .topic-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .gate {
+    margin-top: 40px;
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--accent-light);
+    border: 2px dashed var(--accent);
+    text-align: center;
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .gate-locked .gate-unlocked,
+  .gate-locked .gate-done { display: none; }
+  .gate-ready .gate-locked,
+  .gate-ready .gate-done { display: none; }
+  .gate-done-state .gate-locked,
+  .gate-done-state .gate-unlocked { display: none; }
+  .quiz {
+    margin-top: 32px;
+    display: none;
+  }
+  .quiz.show { display: block; }
+  .quiz-header {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .quiz-header h2 {
+    font-size: 22px;
+    margin: 0 0 8px;
+    color: var(--accent);
+  }
+  .quiz-header p {
+    color: var(--muted);
+    margin: 0;
+    font-size: 14px;
+  }
+  .question {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .question-text {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+  .options { display: grid; gap: 8px; }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .option:active { transform: scale(0.98); }
+  .option input {
+    margin-right: 12px;
+    margin-top: 4px;
+    accent-color: var(--accent);
+    width: 18px; height: 18px;
+    flex-shrink: 0;
+  }
+  .option-text { flex: 1; }
+  .option:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .option.correct,
+  .option.correct:has(input:checked) {
+    border-color: var(--success);
+    background: rgba(45, 122, 62, 0.15);
+  }
+  .option.correct input {
+    accent-color: var(--success);
+  }
+  .option.wrong,
+  .option.wrong:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+  .option.dimmed {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .option:has(input:disabled) {
+    cursor: not-allowed;
+  }
+  /* 答错的选项保持红色但失效，且看起来更淡一些 */
+  .option.wrong:has(input:disabled) {
+    opacity: 0.6;
+  }
+  .completion {
+    display: none;
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--card);
+    border: 2px solid var(--success);
+    border-radius: 16px;
+    margin-top: 32px;
+  }
+  .completion.show { display: block; }
+  .completion .check {
+    font-size: 64px;
+    color: var(--success);
+    margin-bottom: 16px;
+  }
+  .completion h2 {
+    font-size: 24px;
+    color: var(--success);
+    margin: 0 0 8px;
+  }
+  .completion p {
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .completion .streak-line {
+    color: var(--accent);
+    font-weight: 600;
+    margin: 12px 0 24px;
+  }
+  .unlock-btn {
+    display: inline-block;
+    padding: 14px 32px;
+    background: var(--success);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+  }
+  .spinner {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  
+  /* 日期切换条 */
+  .date-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .date-arrow, .date-current {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--fg);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px 12px;
+    transition: all 0.15s;
+  }
+  .date-arrow {
+    width: 36px;
+    font-size: 20px;
+    font-weight: 600;
+    padding: 4px 8px;
+  }
+  .date-arrow:hover, .date-current:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .date-arrow:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .date-current {
+    flex: 1;
+    text-align: center;
+    font-weight: 500;
+  }
+  .cache-badge {
+    font-size: 14px;
+    opacity: 0.6;
+    cursor: help;
+  }
+  
+  /* 趋势图 */
+  .trend-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow);
+  }
+  .trend-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .trend-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--fg);
+  }
+  .trend-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .trend-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 140px;
+    margin: 8px 0 12px;
+    overflow-x: auto;
+    padding-bottom: 24px;
+    position: relative;
+  }
+  .trend-day {
+    flex: 1;
+    min-width: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 100%;
+    position: relative;
+  }
+  .trend-day-bar {
+    width: 100%;
+    border-radius: 2px 2px 0 0;
+    transition: opacity 0.15s;
+    cursor: pointer;
+  }
+  .trend-day:hover .trend-day-bar { opacity: 0.7; }
+  .trend-day-label {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .trend-day.current .trend-day-label {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    font-size: 11px;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--muted);
+  }
+  .legend-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+  }
+  .trend-tooltip {
+    position: absolute;
+    background: var(--fg);
+    color: var(--bg);
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    white-space: nowrap;
+    line-height: 1.5;
+  }
+  
+  /* 管理员面板 */
+  .admin-panel {
+    background: linear-gradient(135deg, #fff3cd, #fff);
+    border: 2px dashed #f0ad4e;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .admin-panel {
+      background: linear-gradient(135deg, #3a2e15, var(--card));
+    }
+  }
+  .admin-title {
+    font-weight: 600;
+    color: #b8860b;
+    margin-bottom: 12px;
+  }
+  .admin-btn {
+    background: #f0ad4e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  .admin-btn:hover { background: #ec971f; }
+  .admin-btn:disabled { background: var(--muted); cursor: not-allowed; }
+  .admin-btn-danger { background: #d9534f; }
+  .admin-btn-danger:hover { background: #c9302c; }
+  .admin-log {
+    margin-top: 12px;
+    max-height: 220px;
+    overflow-y: auto;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .admin-log-line.ok { color: var(--success); }
+  .admin-log-line.err { color: var(--accent); }
+  .admin-log-line.skip { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="progress-label" id="progressLabel">阅读 0%</div>
+<div class="streak-badge" id="streakBadge">🔥 0 天</div>
+
+<div class="container">
+  <div class="header">
+    <h1 class="title">每日新闻联播速递</h1>
+    <div class="date" id="dateDisplay">加载中…</div>
+  </div>
+  
+  <!-- 日期切换条 -->
+  <div class="date-nav" id="dateNav" style="display:none;">
+    <button class="date-arrow" id="prevDay" title="前一天">‹</button>
+    <button class="date-current" id="datePicker">📅 选择日期</button>
+    <button class="date-arrow" id="nextDay" title="后一天">›</button>
+    <span class="cache-badge" id="cacheBadge" title="该日内容已被缓存，免费秒读">💾</span>
+  </div>
+  <input type="date" id="hiddenDateInput" style="position:absolute;left:-9999px;" />
+  
+  <!-- 趋势图 -->
+  <div class="trend-section" id="trendSection" style="display:none;">
+    <div class="trend-header">
+      <span class="trend-title">📊 近期领域趋势</span>
+      <span class="trend-subtitle" id="trendSubtitle">加载中…</span>
+    </div>
+    <div class="trend-chart" id="trendChart"></div>
+    <div class="trend-legend" id="trendLegend"></div>
+  </div>
+  
+  <!-- 管理员面板（仅 admin 模式可见） -->
+  <div class="admin-panel" id="adminPanel" style="display:none;">
+    <div class="admin-title">🔧 管理员面板</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+      <button class="admin-btn" id="backfillBtn">补 7 天</button>
+      <button class="admin-btn" id="backfillNextBtn">继续补下一批 7 天</button>
+      <button class="admin-btn admin-btn-danger" id="clearBtn">清空所有数据</button>
+    </div>
+    <div class="admin-log" id="adminLog"></div>
+  </div>
+
+  <div id="contentArea">
+    <div class="loading">
+      <span class="spinner"></span>
+      <span id="loadingText">正在拉取今日新闻…</span>
+      <span class="loading-stage" id="loadingStage">第 1 步 / 共 2 步</span>
+    </div>
+  </div>
+
+  <div class="gate gate-locked" id="gate" style="display:none;">
+    <div class="gate-locked">↓ 请滚动阅读全部内容，才能进入答题 ↓</div>
+    <div class="gate-unlocked">题目已加载，请下滑作答</div>
+  </div>
+
+  <div class="quiz" id="quiz">
+    <div class="quiz-header">
+      <h2>AI 出题验证</h2>
+      <p id="quizSubtitle">全部答对自动完成</p>
+    </div>
+    <div id="questionsArea"></div>
+  </div>
+
+  <div class="completion" id="completion">
+    <div class="check">✓</div>
+    <h2>今日已完成</h2>
+    <p>你已读完并通过 AI 验证</p>
+    <div class="streak-line" id="streakLine"></div>
+    <a href="#" class="unlock-btn" id="unlockBtn">解锁其他 App</a>
+  </div>
+</div>
+
+<script>
+// ====== 配置区 ======
+const AI_WORKER_URL = 'https://xwl-ai.chenge315700.workers.dev';
+const CATEGORY_COLORS = {
+  '政治与外交': '#c0392b',
+  '经济与产业': '#2980b9',
+  '科技与生态': '#16a085',
+  '农业与民生': '#e67e22',
+  '文化与教育': '#f39c12',
+  '国际与军事': '#34495e',
+  '未分类': '#bdc3c7'
+};
+const CATEGORY_ORDER = ['政治与外交', '经济与产业', '科技与生态', '农业与民生', '文化与教育', '国际与军事'];
+// ====================
+
+// 全局状态
+let currentDateStr = null;
+let aiQuestions = null;
+let quizShown = false;
+let historyCache = null; // { dates: [], trends: {} }
+
+function bjDateStr(offset = 0) {
+  const now = new Date(Date.now() + offset * 86400000);
+  const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+  const bj = new Date(utc + 8 * 3600000);
+  const y = bj.getFullYear();
+  const m = String(bj.getMonth() + 1).padStart(2, '0');
+  const d = String(bj.getDate()).padStart(2, '0');
+  return `${y}${m}${d}`;
+}
+
+function formatDate(yyyymmdd) {
+  return `${yyyymmdd.slice(0,4)} 年 ${parseInt(yyyymmdd.slice(4,6))} 月 ${parseInt(yyyymmdd.slice(6,8))} 日`;
+}
+
+function shortDate(yyyymmdd) {
+  return `${parseInt(yyyymmdd.slice(4,6))}/${parseInt(yyyymmdd.slice(6,8))}`;
+}
+
+function escapeHtml(s) {
+  s = String(s).replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&[a-z]+;/g, '');
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// 在文本里高亮关键词（先 escape，再插入 <span class="kw">）
+// 兜底规则：每个短语在全文中最多高亮 2 次，防止视觉噪音
+function highlightText(text, phrases, occurrenceMap) {
+  let safe = escapeHtml(text);
+  if (!phrases || !phrases.length) return safe;
+  // 长的先替换，避免短词替换破坏长词
+  const sorted = [...phrases].sort((a, b) => b.length - a.length);
+  for (const p of sorted) {
+    if (!p || p.length < 2) continue;
+    const safeP = escapeHtml(p);
+    const escaped = safeP.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const usedCount = occurrenceMap.get(p) || 0;
+    if (usedCount >= 2) continue; // 全文已经高亮 2 次，跳过
+    const remaining = 2 - usedCount;
+    // 只替换前 remaining 次出现
+    let replacedInThis = 0;
+    const re = new RegExp(escaped, 'g');
+    safe = safe.replace(re, (match) => {
+      if (replacedInThis >= remaining) return match;
+      replacedInThis++;
+      return `<span class="kw">${match}</span>`;
+    });
+    occurrenceMap.set(p, usedCount + replacedInThis);
+  }
+  return safe;
+}
+
+// 调用 Worker 获取某一天的数据（不传 date 则取最新）
+async function callWorker(targetDate) {
+  const resp = await fetch(AI_WORKER_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date: targetDate || null })
+  });
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    throw new Error(errData.error || `请求失败 (HTTP ${resp.status})`);
+  }
+  return await resp.json();
+}
+
+// 获取已有日期列表 + 趋势数据
+async function fetchHistory() {
+  try {
+    const resp = await fetch(AI_WORKER_URL + '/history');
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch (e) {
+    return null;
+  }
+}
+
+// 把 AI 给的新闻标注按标题做映射
+function buildAnnotationMap(annotations) {
+  const map = new Map();
+  if (!annotations) return map;
+  for (const a of annotations) map.set(a.title, a);
+  return map;
+}
+
+function renderContent(newsData, aiData) {
+  const area = document.getElementById('contentArea');
+  const annoMap = buildAnnotationMap(aiData.news_annotations);
+  let html = '';
+
+  html += '<div class="ai-section">';
+  html += '<div class="ai-badge">AI 解读</div>';
+  html += `<p class="ai-summary">${escapeHtml(aiData.summary)}</p>`;
+  if (aiData.highlights && aiData.highlights.length) {
+    html += '<div class="highlights-title">今日关键信号</div>';
+    html += '<ul class="highlights">';
+    for (const h of aiData.highlights) {
+      html += `<li>${escapeHtml(h)}</li>`;
+    }
+    html += '</ul>';
+  }
+  html += '</div>';
+
+  html += '<div class="section-label">详细内容（按时效分组）</div>';
+  
+  // 按 timeframe 分组：短期 → 中期 → 长期
+  const TIMEFRAME_ORDER = ['短期', '中期', '长期'];
+  const TIMEFRAME_DESC = {
+    '短期': '当下事件 · 本月本季度',
+    '中期': '1-2 年推进 · 政策落地',
+    '长期': '战略性议题 · 5 年及以上'
+  };
+  const grouped = { '短期': [], '中期': [], '长期': [], '未分类': [] };
+  
+  for (const item of newsData.details) {
+    let anno = annoMap.get(item.title);
+    if (!anno) {
+      for (const [k, v] of annoMap) {
+        if (item.title.includes(k) || k.includes(item.title)) {
+          anno = v;
+          break;
+        }
+      }
+    }
+    const tf = (anno && TIMEFRAME_ORDER.includes(anno.timeframe)) ? anno.timeframe : '未分类';
+    grouped[tf].push({ item, anno });
+  }
+  
+  for (const tf of [...TIMEFRAME_ORDER, '未分类']) {
+    const arr = grouped[tf];
+    if (!arr.length) continue;
+    
+    html += '<div class="group-header">';
+    html += `<span class="group-label group-${tf === '未分类' ? 'other' : (tf === '短期' ? 'short' : tf === '中期' ? 'mid' : 'long')}">${escapeHtml(tf)}</span>`;
+    if (TIMEFRAME_DESC[tf]) {
+      html += `<span class="group-desc">${escapeHtml(TIMEFRAME_DESC[tf])}</span>`;
+    }
+    html += `<span class="group-count">${arr.length} 条</span>`;
+    html += '</div>';
+    
+    for (const { item, anno } of arr) {
+      const keyPhrases = anno ? anno.key_phrases : [];
+      const oneLine = anno ? anno.one_line : null;
+      const category = anno ? (anno.category || anno.domain) : null;
+      const topics = anno ? (anno.topics || []) : [];
+      
+      html += '<div class="news-item">';
+      html += '<div class="news-head">';
+      html += `<h3>${escapeHtml(item.title)}</h3>`;
+      if (category) {
+        html += `<span class="domain-tag" style="border-color:${CATEGORY_COLORS[category] || 'var(--border)'};color:${CATEGORY_COLORS[category] || 'var(--muted)'}">${escapeHtml(category)}</span>`;
+      }
+      html += '</div>';
+      // 小主题标签
+      if (topics.length) {
+        html += '<div class="topic-tags">';
+        for (const t of topics) {
+          html += `<span class="topic-tag">#${escapeHtml(t)}</span>`;
+        }
+        html += '</div>';
+      }
+      if (oneLine) {
+        html += `<div class="news-one-line">💡 ${escapeHtml(oneLine)}</div>`;
+      }
+      const paragraphs = item.body.split(/\n+/).filter(p => p.trim());
+      const occurrenceMap = new Map();
+      for (const p of paragraphs) {
+        html += `<p>${highlightText(p, keyPhrases, occurrenceMap)}</p>`;
+      }
+      html += '</div>';
+    }
+  }
+
+  area.innerHTML = html;
+  document.getElementById('gate').style.display = 'block';
+}
+
+function renderQuiz(questions) {
+  const area = document.getElementById('questionsArea');
+  area.innerHTML = '';
+  questions.forEach((q, i) => {
+    const optsHtml = q.options.map((opt, j) => {
+      const letter = opt.match(/^[A-D]/) ? opt[0] : String.fromCharCode(65 + j);
+      return `
+        <label class="option" data-q="${i}" data-letter="${letter}">
+          <input type="radio" name="q${i}" value="${letter}">
+          <span class="option-text">${escapeHtml(opt)}</span>
+        </label>
+      `;
+    }).join('');
+    const html = `
+      <div class="question" data-index="${i}" data-solved="0">
+        <div class="question-text">${i + 1}. ${escapeHtml(q.question)}</div>
+        <div class="options">${optsHtml}</div>
+      </div>
+    `;
+    area.insertAdjacentHTML('beforeend', html);
+  });
+  
+  // 即时判定：选了立刻知对错
+  area.querySelectorAll('input[type="radio"]').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const qIdx = parseInt(e.target.name.replace('q', ''));
+      const q = aiQuestions[qIdx];
+      const qEl = area.querySelectorAll('.question')[qIdx];
+      if (qEl.dataset.solved === '1') return; // 已答对，锁死
+      
+      const pickedLetter = e.target.value;
+      const optionEl = e.target.closest('.option');
+      
+      if (pickedLetter === q.answer) {
+        // 答对：变绿，禁用整题所有选项
+        optionEl.classList.remove('wrong');
+        optionEl.classList.add('correct');
+        qEl.dataset.solved = '1';
+        qEl.querySelectorAll('input').forEach(inp => inp.disabled = true);
+        qEl.querySelectorAll('.option').forEach(o => {
+          if (!o.classList.contains('correct')) {
+            o.classList.add('dimmed');
+          }
+        });
+        // 检查是否全部答对
+        checkAllSolved();
+      } else {
+        // 答错：选中项变红 + 禁用，让用户继续在剩下的选项里选
+        optionEl.classList.add('wrong');
+        e.target.disabled = true;
+      }
+    });
+  });
+  
+  document.getElementById('quizSubtitle').textContent = 
+    `共 ${questions.length} 题，全部答对自动完成（错了可重选）`;
+}
+
+function checkAllSolved() {
+  if (!aiQuestions) return;
+  const solvedCount = document.querySelectorAll('.question[data-solved="1"]').length;
+  if (solvedCount === aiQuestions.length) {
+    // 全部搞定
+    setTimeout(showCompletion, 600); // 留一点延迟，让最后那个绿色被看到
+  }
+}
+
+function onScroll() {
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const scrolled = window.scrollY;
+  const pct = docHeight > 0 ? Math.min(100, (scrolled / docHeight) * 100) : 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `阅读 ${Math.round(pct)}%`;
+
+  if (pct >= 92 && !quizShown && aiQuestions) {
+    quizShown = true;
+    showQuiz();
+  }
+}
+
+function showQuiz() {
+  const gate = document.getElementById('gate');
+  gate.classList.remove('gate-locked');
+  gate.classList.add('gate-ready');
+  setTimeout(() => {
+    renderQuiz(aiQuestions);
+    document.getElementById('quiz').classList.add('show');
+    document.getElementById('quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 400);
+}
+
+// 打卡天数逻辑
+function updateStreak() {
+  const today = bjDateStr(0);
+  let data = {};
+  try {
+    data = JSON.parse(localStorage.getItem('streakData') || '{}');
+  } catch (e) {}
+  
+  if (data.lastDate === today) {
+    // 今天已经打过卡
+    return data.streak || 1;
+  }
+  
+  const yesterday = bjDateStr(-1);
+  if (data.lastDate === yesterday) {
+    data.streak = (data.streak || 0) + 1;
+  } else {
+    data.streak = 1;
+  }
+  data.lastDate = today;
+  
+  try {
+    localStorage.setItem('streakData', JSON.stringify(data));
+  } catch (e) {}
+  
+  return data.streak;
+}
+
+function showStreakBadge() {
+  try {
+    const data = JSON.parse(localStorage.getItem('streakData') || '{}');
+    if (data.streak && data.streak > 0) {
+      const badge = document.getElementById('streakBadge');
+      badge.textContent = `🔥 已坚持 ${data.streak} 天`;
+      badge.classList.add('show');
+    }
+  } catch (e) {}
+}
+
+function showCompletion() {
+  // 不再隐藏 quiz —— 题目保留可回顾
+  document.getElementById('gate').style.display = 'none';
+  
+  const streak = updateStreak();
+  const c = document.getElementById('completion');
+  c.classList.add('show');
+  
+  const streakLine = document.getElementById('streakLine');
+  if (streak === 1) {
+    streakLine.textContent = `🔥 第 1 天，开始打卡！`;
+  } else if (streak < 7) {
+    streakLine.textContent = `🔥 已连续坚持 ${streak} 天`;
+  } else if (streak < 30) {
+    streakLine.textContent = `🔥🔥 已连续坚持 ${streak} 天，离局长又近了一步`;
+  } else {
+    streakLine.textContent = `🔥🔥🔥 已连续 ${streak} 天，你就是局长`;
+  }
+  
+  c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const params = new URLSearchParams(location.search);
+  const shortcutName = params.get('done') || '新闻联播完成';
+  const unlockBtn = document.getElementById('unlockBtn');
+  unlockBtn.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
+}
+
+window.addEventListener('scroll', onScroll, { passive: true });
+
+// 加载指定日期（或最新）
+async function loadDay(targetDate) {
+  // 重置状态
+  aiQuestions = null;
+  quizShown = false;
+  document.getElementById('quiz').classList.remove('show');
+  document.getElementById('completion').classList.remove('show');
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('progressBar').style.width = '0%';
+  document.getElementById('progressLabel').textContent = '阅读 0%';
+  document.getElementById('cacheBadge').style.display = 'none';
+  
+  const area = document.getElementById('contentArea');
+  area.innerHTML = `
+    <div class="loading">
+      <span class="spinner"></span>
+      <span>${targetDate ? '正在加载历史…' : '正在拉取今日新闻…'}</span>
+      <span class="loading-stage">${targetDate ? '从缓存读取（很快）' : '没有缓存则需 AI 分析（约 20 秒）'}</span>
+    </div>
+  `;
+  
+  try {
+    const aiData = await callWorker(targetDate);
+    
+    if (!aiData.summary || !aiData.questions || !aiData.details) {
+      throw new Error('数据格式异常');
+    }
+    
+    currentDateStr = aiData._date;
+    document.getElementById('dateDisplay').textContent = formatDate(currentDateStr) + 
+      (aiData._cached ? ' · 缓存版本' : ' · 实时生成');
+    document.getElementById('cacheBadge').style.display = aiData._cached ? 'inline' : 'none';
+    
+    // 题目随机抽取
+    const newsCount = aiData.details.length;
+    const quizCount = newsCount <= 5 ? 4 : (newsCount <= 9 ? 5 : 6);
+    const pool = [...aiData.questions];
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    aiQuestions = pool.slice(0, Math.min(quizCount, pool.length));
+    
+    // 渲染：把 details 包成 newsData 传给原函数
+    const newsData = { details: aiData.details };
+    renderContent(newsData, aiData);
+    setTimeout(onScroll, 100);
+    
+    // 更新前后日期按钮可用性
+    updateDateNav();
+  } catch (e) {
+    area.innerHTML = `<div class="error">出错了：${escapeHtml(e.message)}<br><br><button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;border-radius:6px;border:1px solid var(--accent);background:transparent;color:var(--accent);cursor:pointer;">刷新</button></div>`;
+  }
+}
+
+function updateDateNav() {
+  if (!historyCache) return;
+  const dates = historyCache.dates; // 已排序（新→旧）
+  const idx = dates.indexOf(currentDateStr);
+  document.getElementById('prevDay').disabled = (idx < 0 || idx === dates.length - 1);
+  document.getElementById('nextDay').disabled = (idx <= 0);
+  document.getElementById('datePicker').textContent = `📅 ${shortDate(currentDateStr)}`;
+}
+
+// 渲染堆叠柱状图
+function renderTrendChart(history) {
+  const chart = document.getElementById('trendChart');
+  const legend = document.getElementById('trendLegend');
+  const dates = history.dates.slice(0, 30).reverse(); // 最近 30 天，时序展示
+  if (!dates.length) {
+    document.getElementById('trendSection').style.display = 'none';
+    return;
+  }
+  
+  // 兼容新旧数据：新格式是 {counts, topics}，旧格式直接是 counts
+  const getCounts = (ds) => {
+    const t = history.trends[ds];
+    if (!t) return {};
+    return t.counts || t; // 新结构有 .counts，旧的就是直接 map
+  };
+  
+  // 找出最大值（每天总条数）做归一化
+  let maxTotal = 0;
+  for (const ds of dates) {
+    const counts = getCounts(ds);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    if (total > maxTotal) maxTotal = total;
+  }
+  if (maxTotal === 0) maxTotal = 1;
+  
+  let html = '';
+  for (const ds of dates) {
+    const counts = getCounts(ds);
+    const total = Object.values(counts).reduce((a, b) => a + b, 0);
+    const isCurrent = (ds === currentDateStr);
+    const tooltipParts = CATEGORY_ORDER.filter(d => counts[d]).map(d => `${d}: ${counts[d]}`);
+    const tooltipText = `${shortDate(ds)} 共 ${total} 条\n` + tooltipParts.join('\n');
+    
+    html += `<div class="trend-day ${isCurrent ? 'current' : ''}" data-date="${ds}" title="${escapeHtml(tooltipText)}">`;
+    for (const category of CATEGORY_ORDER) {
+      const c = counts[category];
+      if (!c) continue;
+      const h = (c / maxTotal) * 100;
+      html += `<div class="trend-day-bar" style="height:${h}%;background:${CATEGORY_COLORS[category]};"></div>`;
+    }
+    html += `<span class="trend-day-label">${parseInt(ds.slice(6,8))}</span>`;
+    html += '</div>';
+  }
+  chart.innerHTML = html;
+  
+  chart.querySelectorAll('.trend-day').forEach(el => {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', () => {
+      const d = el.dataset.date;
+      if (d && d !== currentDateStr) loadDay(d);
+    });
+  });
+  
+  // 图例
+  const presentCategories = new Set();
+  for (const ds of dates) {
+    const counts = getCounts(ds);
+    Object.keys(counts).forEach(d => presentCategories.add(d));
+  }
+  let legendHtml = '';
+  for (const d of CATEGORY_ORDER) {
+    if (!presentCategories.has(d)) continue;
+    legendHtml += `<span class="legend-item"><span class="legend-swatch" style="background:${CATEGORY_COLORS[d]}"></span>${escapeHtml(d)}</span>`;
+  }
+  legend.innerHTML = legendHtml;
+  
+  document.getElementById('trendSubtitle').textContent = `共 ${dates.length} 天数据`;
+  document.getElementById('trendSection').style.display = 'block';
+}
+
+// 日期切换按钮事件
+function setupDateNav() {
+  document.getElementById('prevDay').addEventListener('click', () => {
+    if (!historyCache) return;
+    const idx = historyCache.dates.indexOf(currentDateStr);
+    const next = historyCache.dates[idx + 1]; // 索引大 = 更老
+    if (next) loadDay(next);
+  });
+  document.getElementById('nextDay').addEventListener('click', () => {
+    if (!historyCache) return;
+    const idx = historyCache.dates.indexOf(currentDateStr);
+    const prev = historyCache.dates[idx - 1]; // 索引小 = 更新
+    if (prev) loadDay(prev);
+  });
+  document.getElementById('datePicker').addEventListener('click', () => {
+    const inp = document.getElementById('hiddenDateInput');
+    if (currentDateStr) {
+      inp.value = `${currentDateStr.slice(0,4)}-${currentDateStr.slice(4,6)}-${currentDateStr.slice(6,8)}`;
+    }
+    inp.showPicker ? inp.showPicker() : inp.click();
+  });
+  document.getElementById('hiddenDateInput').addEventListener('change', (e) => {
+    const v = e.target.value; // YYYY-MM-DD
+    if (!v) return;
+    const ds = v.replace(/-/g, '');
+    loadDay(ds);
+  });
+}
+
+// 管理员模式
+let backfillOffset = 0;
+
+async function callBackfillBatch(secret, days, startOffset) {
+  const resp = await fetch(AI_WORKER_URL + '/admin/backfill', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ secret, days, startOffset })
+  });
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    throw new Error(errData.error || `请求失败 (HTTP ${resp.status})`);
+  }
+  return await resp.json();
+}
+
+async function callClear(secret) {
+  const resp = await fetch(AI_WORKER_URL + '/admin/clear', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ secret })
+  });
+  if (!resp.ok) {
+    const errData = await resp.json().catch(() => ({}));
+    throw new Error(errData.error || `请求失败 (HTTP ${resp.status})`);
+  }
+  return await resp.json();
+}
+
+function appendAdminLog(html) {
+  const log = document.getElementById('adminLog');
+  log.innerHTML += html;
+  log.scrollTop = log.scrollHeight;
+}
+
+function setupAdminMode() {
+  const params = new URLSearchParams(location.search);
+  const adminSecret = params.get('admin');
+  if (!adminSecret) return;
+  
+  const panel = document.getElementById('adminPanel');
+  panel.style.display = 'block';
+  
+  const backfillBtn = document.getElementById('backfillBtn');
+  const nextBtn = document.getElementById('backfillNextBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const log = document.getElementById('adminLog');
+  
+  async function doBackfill(offset) {
+    backfillBtn.disabled = true;
+    nextBtn.disabled = true;
+    clearBtn.disabled = true;
+    appendAdminLog(`<div class="admin-log-line">⏳ 正在补档 ${offset+1} – ${offset+7} 天前的数据，约需 1-2 分钟…</div>`);
+    try {
+      const result = await callBackfillBatch(adminSecret, 7, offset);
+      let okCount = 0, skipCount = 0, errCount = 0;
+      let logHtml = '';
+      for (const r of result.results) {
+        if (r.status === 'ok') { okCount++; logHtml += `<div class="admin-log-line ok">✓ ${r.date} 已生成 (${r.newsCount} 条)</div>`; }
+        else if (r.status === 'cached' || r.status === 'skipped') { skipCount++; logHtml += `<div class="admin-log-line skip">○ ${r.date} 已存在，跳过</div>`; }
+        else { errCount++; logHtml += `<div class="admin-log-line err">✗ ${r.date} 失败：${r.status} ${r.error || ''}</div>`; }
+      }
+      appendAdminLog(`<div class="admin-log-line"><b>本批完成：</b> 新增 ${okCount} / 跳过 ${skipCount} / 失败 ${errCount}</div>` + logHtml);
+      backfillOffset = offset + 7;
+      nextBtn.textContent = `继续补 ${backfillOffset+1} – ${backfillOffset+7} 天前`;
+      // 刷新趋势图
+      historyCache = await fetchHistory();
+      if (historyCache) {
+        renderTrendChart(historyCache);
+        updateDateNav();
+      }
+    } catch (e) {
+      appendAdminLog(`<div class="admin-log-line err">✗ 失败：${escapeHtml(e.message)}</div>`);
+    } finally {
+      backfillBtn.disabled = false;
+      nextBtn.disabled = false;
+      clearBtn.disabled = false;
+    }
+  }
+  
+  backfillBtn.addEventListener('click', () => {
+    if (!confirm('补档最近 7 天？预计 1-2 分钟，约花 3-4 毛钱。')) return;
+    backfillOffset = 0;
+    doBackfill(0);
+  });
+  
+  nextBtn.addEventListener('click', () => {
+    if (backfillOffset === 0) {
+      alert('请先点"补 7 天"');
+      return;
+    }
+    if (!confirm(`补 ${backfillOffset+1} – ${backfillOffset+7} 天前的数据？`)) return;
+    doBackfill(backfillOffset);
+  });
+  
+  clearBtn.addEventListener('click', async () => {
+    if (!confirm('⚠️ 真的要清空所有缓存数据吗？这会删除所有日期的 AI 解读，无法恢复。')) return;
+    if (!confirm('再次确认：清空后需要重新补档才能看到历史。继续？')) return;
+    clearBtn.disabled = true;
+    appendAdminLog('<div class="admin-log-line">⏳ 正在清空…</div>');
+    try {
+      const result = await callClear(adminSecret);
+      appendAdminLog(`<div class="admin-log-line ok">✓ 已删除 ${result.deleted} 天的数据</div>`);
+      historyCache = { dates: [], trends: {} };
+      document.getElementById('trendSection').style.display = 'none';
+      backfillOffset = 0;
+      nextBtn.textContent = '继续补档下一批 7 天';
+    } catch (e) {
+      appendAdminLog(`<div class="admin-log-line err">✗ 清空失败：${escapeHtml(e.message)}</div>`);
+    } finally {
+      clearBtn.disabled = false;
+    }
+  });
+}
+
+// 主入口
+(async () => {
+  showStreakBadge();
+  setupDateNav();
+  setupAdminMode();
+  
+  // 并行：拉今天的数据 + 拉历史索引
+  const [, history] = await Promise.all([
+    loadDay(null),
+    fetchHistory()
+  ]);
+  
+  if (history) {
+    historyCache = history;
+    renderTrendChart(history);
+    updateDateNav();
+    document.getElementById('dateNav').style.display = 'flex';
+  }
+})();
+</script>
+</body>
+</html>
