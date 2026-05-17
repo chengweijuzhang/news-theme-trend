@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0f0f0f">
-<title>每日新闻联播速递 · AI 解读</title>
+<meta name="theme-color" content="#d70018">
+<title>每日新闻联播速递</title>
 <style>
   :root {
     --bg: #fafaf7;
@@ -67,23 +67,6 @@
     z-index: 99;
     box-shadow: var(--shadow);
   }
-  .streak-badge {
-    position: fixed;
-    top: env(safe-area-inset-top, 0);
-    left: 12px;
-    padding: 4px 10px;
-    margin-top: 8px;
-    background: var(--card);
-    border: 1px solid var(--accent);
-    border-radius: 999px;
-    font-size: 12px;
-    color: var(--accent);
-    z-index: 99;
-    box-shadow: var(--shadow);
-    font-weight: 600;
-    display: none;
-  }
-  .streak-badge.show { display: block; }
   .container {
     max-width: 680px;
     margin: 0 auto;
@@ -91,6 +74,41 @@
     padding-top: calc(60px + env(safe-area-inset-top, 0));
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0));
   }
+  
+  /* Tab 切换栏 */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 50;
+    padding-top: 8px;
+  }
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 12px 16px;
+    font-size: 15px;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+    font-weight: 500;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-btn:hover { color: var(--fg); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    font-weight: 600;
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
   .header {
     border-bottom: 2px solid var(--accent);
     padding-bottom: 16px;
@@ -230,18 +248,19 @@
   .group-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin: 28px 0 12px;
+    gap: 12px;
+    margin: 36px 0 16px;
     padding: 0 4px;
     flex-wrap: wrap;
   }
   .group-label {
     display: inline-block;
-    padding: 4px 12px;
+    padding: 8px 20px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 700;
     color: white;
+    letter-spacing: 1px;
   }
   .group-short { background: #e67e22; }
   .group-mid { background: #3498db; }
@@ -416,27 +435,10 @@
     margin-bottom: 16px;
   }
   .completion h2 {
-    font-size: 24px;
+    font-size: 22px;
     color: var(--success);
-    margin: 0 0 8px;
-  }
-  .completion p {
-    color: var(--muted);
-    margin: 0 0 12px;
-  }
-  .completion .streak-line {
-    color: var(--accent);
-    font-weight: 600;
-    margin: 12px 0 24px;
-  }
-  .unlock-btn {
-    display: inline-block;
-    padding: 14px 32px;
-    background: var(--success);
-    color: white;
-    text-decoration: none;
-    border-radius: 12px;
-    font-weight: 600;
+    margin: 0;
+    line-height: 1.4;
   }
   .spinner {
     display: inline-block;
@@ -492,7 +494,7 @@
     cursor: help;
   }
   
-  /* 趋势图 */
+  /* 趋势模块（折线图 + 持续关注） */
   .trend-section {
     background: var(--card);
     border: 1px solid var(--border);
@@ -501,13 +503,14 @@
     margin-bottom: 24px;
     box-shadow: var(--shadow);
   }
-  .trend-header {
+  .trend-header, .persistent-header {
     display: flex;
     align-items: baseline;
     gap: 8px;
     margin-bottom: 12px;
     flex-wrap: wrap;
   }
+  .persistent-header { margin-top: 24px; }
   .trend-title {
     font-size: 15px;
     font-weight: 600;
@@ -517,62 +520,43 @@
     font-size: 12px;
     color: var(--muted);
   }
-  .trend-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-    height: 140px;
-    margin: 8px 0 12px;
-    overflow-x: auto;
-    padding-bottom: 24px;
+  
+  /* SVG 折线图 */
+  .trend-chart-wrapper {
     position: relative;
-  }
-  .trend-day {
-    flex: 1;
-    min-width: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 100%;
-    position: relative;
-  }
-  .trend-day-bar {
     width: 100%;
-    border-radius: 2px 2px 0 0;
-    transition: opacity 0.15s;
+    margin: 8px 0 12px;
+  }
+  .trend-chart {
+    width: 100%;
+    height: 240px;
+    display: block;
+  }
+  .trend-line {
+    fill: none !important;
+    stroke-width: 2;
+    transition: stroke-width 0.15s;
+  }
+  .trend-line:hover {
+    stroke-width: 3.5;
+  }
+  .trend-dot {
+    transition: r 0.15s;
     cursor: pointer;
   }
-  .trend-day:hover .trend-day-bar { opacity: 0.7; }
-  .trend-day-label {
-    position: absolute;
-    bottom: -22px;
-    left: 50%;
-    transform: translateX(-50%);
+  .trend-dot:hover {
+    r: 5;
+  }
+  .trend-axis-text {
     font-size: 10px;
-    color: var(--muted);
-    white-space: nowrap;
+    fill: var(--muted);
+    font-family: ui-monospace, monospace;
   }
-  .trend-day.current .trend-day-label {
-    color: var(--accent);
-    font-weight: 700;
+  .trend-axis-line {
+    stroke: var(--border);
+    stroke-width: 1;
   }
-  .trend-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 12px;
-    font-size: 11px;
-  }
-  .legend-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    color: var(--muted);
-  }
-  .legend-swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-  }
+  
   .trend-tooltip {
     position: absolute;
     background: var(--fg);
@@ -586,6 +570,110 @@
     white-space: nowrap;
     line-height: 1.5;
   }
+  
+  .trend-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--fg);
+    cursor: pointer;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background 0.15s;
+  }
+  .legend-item:hover { background: var(--bg); }
+  .legend-item.dimmed { opacity: 0.35; }
+  .legend-swatch {
+    width: 12px;
+    height: 3px;
+    border-radius: 2px;
+  }
+  
+  /* 持续关注列表 */
+  .persistent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .persistent-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    background: var(--bg);
+  }
+  .persistent-row:hover { background: var(--accent-light); }
+  .persistent-row.selected {
+    background: var(--accent-light);
+    border-left: 3px solid var(--accent);
+    padding-left: 11px;
+  }
+  .persistent-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .persistent-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg);
+    margin-bottom: 4px;
+  }
+  .persistent-meta {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .persistent-cat-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    border: 1px solid var(--border);
+  }
+  .persistent-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    min-width: 80px;
+  }
+  .persistent-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  .persistent-bar-bg {
+    width: 80px;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .persistent-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s;
+  }
+  .persistent-trend {
+    font-size: 10px;
+  }
+  .persistent-trend.up { color: var(--accent); }
+  .persistent-trend.down { color: var(--success); }
+  .persistent-trend.stable { color: var(--muted); }
   
   /* 管理员面板 */
   .admin-panel {
@@ -631,41 +719,1136 @@
   .admin-log-line.ok { color: var(--success); }
   .admin-log-line.err { color: var(--accent); }
   .admin-log-line.skip { color: var(--muted); }
+
+  /* 2026 UI refresh: red/black/white news homepage */
+  :root {
+    --bg: #f6f6f4;
+    --fg: #101014;
+    --muted: #6f7178;
+    --muted-2: #9a9ca3;
+    --card: #ffffff;
+    --border: #e7e7e9;
+    --accent: #d70018;
+    --accent-dark: #9d0010;
+    --accent-light: #fff0f2;
+    --success: #16833b;
+    --success-light: #edf9f1;
+    --highlight-bg: rgba(255, 218, 90, 0.42);
+    --shadow: 0 18px 50px rgba(14, 18, 27, 0.07), 0 2px 9px rgba(14, 18, 27, 0.05);
+    --shadow-soft: 0 10px 30px rgba(14, 18, 27, 0.05);
+    --radius-xl: 34px;
+    --radius-lg: 28px;
+    --radius-md: 18px;
+  }
+
+  body {
+    background:
+      linear-gradient(180deg, #ffffff 0, #f6f6f4 280px),
+      var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    line-height: 1.68;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14);
+    z-index: 1000;
+    display: none;
+  }
+
+  .site-header {
+    background: #c90016;
+    color: #fff;
+    padding: calc(28px + env(safe-area-inset-top, 0)) 18px 24px;
+  }
+
+  .header-inner {
+    width: min(100%, 960px);
+    margin: 0 auto;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .brand-block {
+    min-width: 0;
+  }
+
+  .title {
+    margin: 0;
+    color: #fff;
+    font-size: clamp(31px, 4vw, 48px);
+    line-height: 1.1;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  .date {
+    color: inherit;
+    font-size: inherit;
+  }
+
+  .cache-badge {
+    color: inherit;
+    font-size: inherit;
+    opacity: 1;
+    cursor: help;
+  }
+
+  .cache-badge::before {
+    content: "·";
+    margin-right: 8px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  .progress-label {
+    position: static;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 9px 15px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(83, 0, 8, 0.38);
+    box-shadow: none;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    display: none;
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 34px;
+    flex-wrap: nowrap;
+  }
+
+  .tabs {
+    position: static;
+    display: inline-flex;
+    width: auto;
+    min-width: 260px;
+    gap: 0;
+    margin: 0;
+    padding: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 18px;
+    background: rgba(124, 0, 12, 0.24);
+    backdrop-filter: blur(16px);
+  }
+
+  .tab-btn {
+    min-width: 120px;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 10px 15px;
+    border: 0;
+    border-radius: 15px;
+    color: rgba(255, 255, 255, 0.88);
+    font-size: 14px;
+    font-weight: 650;
+  }
+
+  .tab-btn:hover {
+    color: #fff;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    background: #fff;
+    border-bottom-color: transparent;
+    box-shadow: 0 10px 22px rgba(87, 0, 8, 0.15);
+  }
+
+  .date-nav {
+    position: relative;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 0 0 0 auto;
+    flex: 0 0 auto;
+  }
+
+  .date-arrow,
+  .date-current,
+  .calendar-month-btn {
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(124, 0, 12, 0.18);
+    color: #fff;
+    border-radius: 15px;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .date-arrow {
+    width: 40px;
+    height: 42px;
+    padding: 0;
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .date-current {
+    min-width: 94px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 0 13px;
+    font-size: 14px;
+    font-weight: 680;
+  }
+
+  .date-arrow:hover,
+  .date-current:hover,
+  .calendar-month-btn:hover {
+    border-color: rgba(255, 255, 255, 0.52);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .date-arrow:active,
+  .date-current:active,
+  .calendar-month-btn:active {
+    transform: translateY(1px);
+  }
+
+  .date-arrow:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  button:focus-visible {
+    outline: 3px solid rgba(215, 0, 24, 0.18);
+    outline-offset: 3px;
+  }
+
+  .site-header button:focus-visible {
+    outline-color: rgba(255, 255, 255, 0.38);
+  }
+
+  .date-picker-wrap {
+    position: relative;
+  }
+
+  .date-icon {
+    width: 15px;
+    height: 15px;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+    position: relative;
+    opacity: 0.92;
+  }
+
+  .date-icon::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    top: 3px;
+    border-top: 2px solid currentColor;
+  }
+
+  .calendar-popover {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 12px);
+    width: 314px;
+    padding: 18px;
+    border-radius: 26px;
+    background: #fff;
+    color: var(--fg);
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    box-shadow: 0 24px 70px rgba(16, 16, 20, 0.2);
+    z-index: 2000;
+  }
+
+  .calendar-popover[hidden] {
+    display: none;
+  }
+
+  .calendar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .calendar-month-title {
+    font-size: 15px;
+    font-weight: 850;
+    color: var(--fg);
+  }
+
+  .calendar-month-btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-color: var(--border);
+    background: #fff;
+    color: var(--fg);
+    font-size: 24px;
+  }
+
+  .calendar-weekdays,
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+
+  .calendar-weekdays {
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+  }
+
+  .calendar-day {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--fg);
+    font-weight: 750;
+    cursor: pointer;
+  }
+
+  .calendar-day:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .calendar-day.is-muted {
+    color: #c5c6ca;
+  }
+
+  .calendar-day.is-no-data {
+    color: #c5c6ca;
+  }
+
+  .calendar-day.is-today {
+    box-shadow: inset 0 0 0 1px rgba(215, 0, 24, 0.38);
+  }
+
+  .calendar-day.is-selected {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .calendar-day.has-cache::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    width: 4px;
+    height: 4px;
+    margin-left: -2px;
+    border-radius: 999px;
+    background: currentColor;
+    opacity: 0.55;
+  }
+
+  .calendar-day:disabled {
+    color: #d5d6da;
+    cursor: not-allowed;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .calendar-day:disabled::after {
+    display: none;
+  }
+
+  .container {
+    max-width: 960px;
+    padding: 28px 18px 96px;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0));
+  }
+
+  .loading,
+  .error {
+    color: var(--muted);
+    padding: 58px 20px;
+  }
+
+  .spinner {
+    border-color: rgba(215, 0, 24, 0.12);
+    border-top-color: var(--accent);
+  }
+
+  .ai-section,
+  .news-item,
+  .question,
+  .completion,
+  .trend-section,
+  .admin-panel {
+    background: var(--card);
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+  }
+
+  .ai-section {
+    position: relative;
+    padding: 28px 34px 30px;
+    margin-bottom: 34px;
+    overflow: hidden;
+  }
+
+  .ai-section::before {
+    content: "";
+    position: absolute;
+    left: 32px;
+    top: 30px;
+    width: 4px;
+    height: 25px;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+
+  .ai-badge {
+    display: block;
+    padding: 0 0 0 16px;
+    margin: 0 0 14px;
+    background: transparent;
+    color: var(--fg);
+    border-radius: 0;
+    font-size: 21px;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .ai-summary {
+    margin: 0 0 26px;
+    color: #26262b;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .highlights-title {
+    margin: 0 0 14px;
+    color: var(--fg);
+    font-size: 16px;
+    font-weight: 850;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .highlights {
+    display: grid;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  .highlights li {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    align-items: center;
+    gap: 13px;
+    min-height: 56px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+
+  .highlights li:last-child {
+    border-bottom: 0;
+  }
+
+  .highlights li::before {
+    display: none;
+  }
+
+  .highlight-rank,
+  .news-rank,
+  .question-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 850;
+    box-shadow: 0 2px 5px rgba(215, 0, 24, 0.08);
+  }
+
+  .news-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #747780;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  }
+
+  .news-toggle:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 18px 6px 16px;
+  }
+
+  .section-heading h2 {
+    margin: 0;
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .section-note {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .news-stream {
+    display: grid;
+    gap: 16px;
+  }
+
+  .group-header {
+    margin: 28px 6px 14px;
+    gap: 12px;
+  }
+
+  .group-label {
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 16px;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .group-short,
+  .group-mid,
+  .group-long,
+  .group-other {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .group-desc,
+  .group-count {
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 650;
+  }
+
+  .news-item {
+    display: grid;
+    grid-template-columns: 42px 1fr 40px;
+    gap: 15px;
+    padding: 24px 28px 24px 26px;
+    margin: 0;
+  }
+
+  .news-main {
+    min-width: 0;
+  }
+
+  .news-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: 14px;
+    margin: 0 0 10px;
+  }
+
+  .news-item h3 {
+    margin: 0;
+    color: var(--fg);
+    font-size: 20px;
+    line-height: 1.42;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .domain-tag {
+    margin: 2px 0 0;
+    padding: 2px 0;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 800;
+  }
+
+  .topic-tags {
+    gap: 8px;
+    margin: 7px 0 13px;
+  }
+
+  .topic-tag {
+    padding: 4px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .news-one-line {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    color: #51545d;
+    font-size: 15px;
+    font-style: normal;
+    line-height: 1.75;
+  }
+
+  .news-body {
+    display: none;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+
+  .news-item.expanded .news-body {
+    display: block;
+  }
+
+  .news-item.expanded .news-toggle {
+    transform: rotate(180deg);
+  }
+
+  .news-item p {
+    margin: 0 0 12px;
+    color: #26262b;
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .kw {
+    background: var(--highlight-bg);
+    border-radius: 5px;
+    padding: 1px 4px;
+    color: inherit;
+    font-weight: 750;
+  }
+
+  .gate {
+    margin-top: 34px;
+    padding: 22px;
+    border: 1px dashed rgba(215, 0, 24, 0.35);
+    border-radius: var(--radius-lg);
+    background: #fff;
+    color: var(--accent);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .quiz {
+    margin-top: 38px;
+  }
+
+  .quiz-header {
+    text-align: left;
+    margin: 0 0 22px;
+  }
+
+  .quiz-header h2 {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    margin: 0 0 8px;
+    color: var(--fg);
+    font-size: 28px;
+    font-weight: 850;
+    letter-spacing: 0;
+  }
+
+  .quiz-header h2::before {
+    content: "";
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background:
+      linear-gradient(#fff, #fff) 8px 8px / 12px 2px no-repeat,
+      linear-gradient(#fff, #fff) 8px 13px / 12px 2px no-repeat,
+      linear-gradient(#fff, #fff) 8px 18px / 8px 2px no-repeat,
+      var(--accent);
+    box-shadow: 0 2px 5px rgba(215, 0, 24, 0.08);
+  }
+
+  .quiz-header p {
+    color: var(--muted);
+    font-size: 16px;
+  }
+
+  .question {
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .question.is-hidden {
+    display: none;
+  }
+
+  .question-text {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: start;
+    gap: 14px;
+    margin-bottom: 22px;
+    color: var(--fg);
+    font-size: 21px;
+    font-weight: 850;
+    line-height: 1.45;
+  }
+
+  .options {
+    gap: 12px;
+  }
+
+  .option {
+    align-items: center;
+    min-height: 64px;
+    padding: 14px 20px;
+    background: #fff;
+    border: 1.5px solid #dddddf;
+    border-radius: 17px;
+    color: var(--fg);
+    font-size: 17px;
+    font-weight: 600;
+    box-shadow: none;
+  }
+
+  .option input {
+    width: 22px;
+    height: 22px;
+    margin: 0 16px 0 0;
+    accent-color: var(--accent);
+  }
+
+  .option:active {
+    transform: scale(0.996);
+  }
+
+  .option:hover {
+    border-color: rgba(215, 0, 24, 0.42);
+  }
+
+  .option:has(input:checked),
+  .option.wrong,
+  .option.wrong:has(input:checked) {
+    border-color: #ff343f;
+    background: linear-gradient(90deg, #fff1f3, #fff);
+  }
+
+  .option.correct,
+  .option.correct:has(input:checked) {
+    border-color: var(--success);
+    background: var(--success-light);
+  }
+
+  .option.dimmed {
+    opacity: 0.46;
+  }
+
+  .quiz-nav {
+    position: sticky;
+    bottom: 16px;
+    z-index: 80;
+    display: grid;
+    grid-template-columns: minmax(130px, auto) 1fr minmax(150px, auto);
+    align-items: center;
+    gap: 22px;
+    margin-top: 26px;
+    padding: 14px 18px;
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 18px 46px rgba(14, 18, 27, 0.13);
+    backdrop-filter: blur(18px);
+  }
+
+  .quiz-nav-btn {
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    border-radius: 999px;
+    border: 1px solid #d7d7db;
+    background: #fff;
+    color: var(--fg);
+    font-size: 16px;
+    font-weight: 850;
+    cursor: pointer;
+  }
+
+  .quiz-nav-btn.next {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: #fff;
+    box-shadow: none;
+  }
+
+  .quiz-nav-btn:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .quiz-progress {
+    display: grid;
+    justify-items: center;
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .quiz-progress-text {
+    color: var(--fg);
+    font-size: 16px;
+    font-weight: 850;
+    white-space: nowrap;
+  }
+
+  .quiz-progress-track {
+    width: min(100%, 280px);
+    height: 7px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: #e2e2e4;
+  }
+
+  .quiz-progress-fill {
+    width: 0%;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent);
+    transition: width 0.22s ease;
+  }
+
+  .completion {
+    border-color: rgba(215, 0, 24, 0.24);
+    border-width: 1px;
+    border-radius: var(--radius-xl);
+    background: linear-gradient(180deg, #fff, #fff8f9);
+  }
+
+  .completion .check,
+  .completion h2 {
+    color: var(--accent);
+  }
+
+  .trend-section {
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+
+  .trend-title {
+    color: var(--fg);
+    font-size: 18px;
+    font-weight: 850;
+  }
+
+  .persistent-row {
+    border-radius: 18px;
+    background: #fafafa;
+  }
+
+  .persistent-row.selected {
+    border-left: 0;
+    padding-left: 14px;
+    background: var(--accent-light);
+  }
+
+  .admin-panel {
+    padding: 22px;
+  }
+
+  @media (max-width: 760px) {
+    .site-header {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .header-top {
+      display: grid;
+      gap: 18px;
+    }
+
+    .header-controls {
+      gap: 8px;
+      overflow: visible;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .header-controls::-webkit-scrollbar {
+      display: none;
+    }
+
+    .progress-label {
+      justify-self: start;
+    }
+
+    .tabs {
+      flex: 0 0 auto;
+      min-width: 0;
+      display: inline-flex;
+    }
+
+    .tab-btn {
+      min-width: 104px;
+      padding-left: 12px;
+      padding-right: 12px;
+      font-size: 13px;
+    }
+
+    .date-nav {
+      flex: 0 0 auto;
+      justify-content: flex-start;
+      display: flex;
+      gap: 8px;
+    }
+
+    .date-current {
+      width: auto;
+    }
+
+    .calendar-popover {
+      right: 0;
+      transform: none;
+      width: min(314px, calc(100vw - 32px));
+    }
+
+    .container {
+      padding-left: 14px;
+      padding-right: 14px;
+    }
+
+    .ai-section,
+    .question,
+    .trend-section,
+    .admin-panel {
+      padding: 23px 20px;
+      border-radius: 28px;
+    }
+
+    .ai-section::before {
+      left: 20px;
+      top: 25px;
+    }
+
+    .news-item {
+      grid-template-columns: 36px 1fr 32px;
+      gap: 10px;
+      padding: 20px 16px;
+      border-radius: 28px;
+    }
+
+    .news-head {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+
+    .news-item h3 {
+      font-size: 18px;
+    }
+
+    .section-heading {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .quiz-header h2 {
+      font-size: 25px;
+    }
+
+    .question-text {
+      grid-template-columns: 38px 1fr;
+      font-size: 18px;
+    }
+
+    .option {
+      min-height: 58px;
+      padding: 12px 16px;
+      font-size: 16px;
+    }
+
+    .quiz-nav {
+      grid-template-columns: 1fr 1.1fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      bottom: 10px;
+    }
+
+    .quiz-nav-btn {
+      min-width: 0;
+      padding: 0 12px;
+      font-size: 14px;
+    }
+
+    .quiz-progress-text {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 430px) {
+    .title {
+      font-size: 31px;
+    }
+
+    .tabs {
+      border-radius: 16px;
+    }
+
+    .tab-btn {
+      min-width: 92px;
+      padding: 9px 10px;
+      border-radius: 13px;
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .date-arrow {
+      width: 36px;
+      height: 38px;
+      font-size: 24px;
+      border-radius: 13px;
+    }
+
+    .date-current {
+      min-width: 84px;
+      height: 38px;
+      gap: 7px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+
+    .highlights li {
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+    }
+
+    .news-item {
+      grid-template-columns: 34px 1fr;
+    }
+
+    .news-toggle {
+      grid-column: 2;
+      justify-self: end;
+      margin-top: -6px;
+    }
+
+    .quiz-nav {
+      border-radius: 24px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .quiz-progress {
+      order: -1;
+      grid-column: 1 / -1;
+    }
+  }
 </style>
 </head>
 <body>
 <div class="progress-bar" id="progressBar"></div>
-<div class="progress-label" id="progressLabel">阅读 0%</div>
-<div class="streak-badge" id="streakBadge">🔥 0 天</div>
 
-<div class="container">
-  <div class="header">
-    <h1 class="title">每日新闻联播速递</h1>
-    <div class="date" id="dateDisplay">加载中…</div>
-  </div>
-  
-  <!-- 日期切换条 -->
-  <div class="date-nav" id="dateNav" style="display:none;">
-    <button class="date-arrow" id="prevDay" title="前一天">‹</button>
-    <button class="date-current" id="datePicker">📅 选择日期</button>
-    <button class="date-arrow" id="nextDay" title="后一天">›</button>
-    <span class="cache-badge" id="cacheBadge" title="该日内容已被缓存，免费秒读">💾</span>
-  </div>
-  <input type="date" id="hiddenDateInput" style="position:absolute;left:-9999px;" />
-  
-  <!-- 趋势图 -->
-  <div class="trend-section" id="trendSection" style="display:none;">
-    <div class="trend-header">
-      <span class="trend-title">📊 近期领域趋势</span>
-      <span class="trend-subtitle" id="trendSubtitle">加载中…</span>
+<header class="site-header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="brand-block">
+        <h1 class="title">每日新闻联播速递</h1>
+        <div class="header-meta">
+          <span class="date" id="dateDisplay">加载中…</span>
+        </div>
+      </div>
+      <div class="progress-label" id="progressLabel">阅读 0%</div>
     </div>
-    <div class="trend-chart" id="trendChart"></div>
-    <div class="trend-legend" id="trendLegend"></div>
+
+    <div class="header-controls">
+      <!-- Tab 切换栏 -->
+      <div class="tabs" id="tabs">
+        <button class="tab-btn active" data-tab="content">今日内容</button>
+        <button class="tab-btn" data-tab="trend">议题趋势</button>
+      </div>
+
+      <!-- 日期切换条 -->
+      <div class="date-nav" id="dateNav" style="display:none;">
+        <button class="date-arrow" id="prevDay" title="前一天" aria-label="前一天">‹</button>
+        <div class="date-picker-wrap">
+          <button class="date-current" id="datePicker" aria-expanded="false" aria-controls="calendarPopover">
+            <span id="datePickerText">选择日期</span>
+            <span class="date-icon" aria-hidden="true"></span>
+          </button>
+          <div class="calendar-popover" id="calendarPopover" hidden>
+            <div class="calendar-head">
+              <button class="calendar-month-btn" id="calendarPrevMonth" type="button" aria-label="上个月">‹</button>
+              <div class="calendar-month-title" id="calendarMonthTitle">加载中</div>
+              <button class="calendar-month-btn" id="calendarNextMonth" type="button" aria-label="下个月">›</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+        </div>
+        <button class="date-arrow" id="nextDay" title="后一天" aria-label="后一天">›</button>
+      </div>
+    </div>
   </div>
-  
-  <!-- 管理员面板（仅 admin 模式可见） -->
+</header>
+
+<main class="container">
+
+  <!-- 管理员面板（仅 admin 模式可见，在两个 Tab 上方都显示） -->
   <div class="admin-panel" id="adminPanel" style="display:none;">
-    <div class="admin-title">🔧 管理员面板</div>
+    <div class="admin-title">管理员面板</div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
       <button class="admin-btn" id="backfillBtn">补 7 天</button>
       <button class="admin-btn" id="backfillNextBtn">继续补下一批 7 天</button>
@@ -674,35 +1857,59 @@
     <div class="admin-log" id="adminLog"></div>
   </div>
 
-  <div id="contentArea">
-    <div class="loading">
-      <span class="spinner"></span>
-      <span id="loadingText">正在拉取今日新闻…</span>
-      <span class="loading-stage" id="loadingStage">第 1 步 / 共 2 步</span>
+  <!-- Tab Panel 1：今日内容 -->
+  <div class="tab-panel active" id="panel-content">
+    <div id="contentArea">
+      <div class="loading">
+        <span class="spinner"></span>
+        <span id="loadingText">正在拉取今日新闻…</span>
+        <span class="loading-stage" id="loadingStage">第 1 步 / 共 2 步</span>
+      </div>
+    </div>
+
+    <div class="gate gate-locked" id="gate" style="display:none;">
+      <div class="gate-locked">↓ 请滚动阅读全部内容，才能进入答题 ↓</div>
+      <div class="gate-unlocked">题目已加载，请下滑作答</div>
+    </div>
+
+    <div class="quiz" id="quiz">
+      <div class="quiz-header">
+        <h2>局长测验</h2>
+        <p id="quizSubtitle">全部答对自动完成</p>
+      </div>
+      <div id="questionsArea"></div>
+    </div>
+
+    <div class="completion" id="completion">
+      <div class="check">✓</div>
+      <h2>今日已完成，又离成为局长进了一步！！</h2>
+    </div>
+  </div><!-- end of panel-content -->
+
+  <!-- Tab Panel 2：议题趋势 -->
+  <div class="tab-panel" id="panel-trend">
+    <div class="trend-section" id="trendSection" style="display:none;">
+      <div class="trend-header">
+        <span class="trend-title">重点议题热度趋势</span>
+        <span class="trend-subtitle" id="trendSubtitle">加载中…</span>
+      </div>
+      <div class="trend-chart-wrapper">
+        <svg class="trend-chart" id="trendChart" viewBox="0 0 720 240" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="trend-tooltip" id="trendTooltip" style="display:none;"></div>
+      </div>
+      <div class="trend-legend" id="trendLegend"></div>
+      
+      <div class="persistent-header">
+        <span class="trend-title">持续关注议题</span>
+        <span class="trend-subtitle">点击行加入折线图比较</span>
+      </div>
+      <div class="persistent-list" id="persistentList"></div>
+    </div>
+    <div id="trendEmptyHint" class="loading" style="display:none;">
+      暂无趋势数据。等数据积累或在管理员模式下补档后查看。
     </div>
   </div>
-
-  <div class="gate gate-locked" id="gate" style="display:none;">
-    <div class="gate-locked">↓ 请滚动阅读全部内容，才能进入答题 ↓</div>
-    <div class="gate-unlocked">题目已加载，请下滑作答</div>
-  </div>
-
-  <div class="quiz" id="quiz">
-    <div class="quiz-header">
-      <h2>AI 出题验证</h2>
-      <p id="quizSubtitle">全部答对自动完成</p>
-    </div>
-    <div id="questionsArea"></div>
-  </div>
-
-  <div class="completion" id="completion">
-    <div class="check">✓</div>
-    <h2>今日已完成</h2>
-    <p>你已读完并通过 AI 验证</p>
-    <div class="streak-line" id="streakLine"></div>
-    <a href="#" class="unlock-btn" id="unlockBtn">解锁其他 App</a>
-  </div>
-</div>
+</main>
 
 <script>
 // ====== 配置区 ======
@@ -717,6 +1924,7 @@ const CATEGORY_COLORS = {
   '未分类': '#bdc3c7'
 };
 const CATEGORY_ORDER = ['政治与外交', '经济与产业', '科技与生态', '农业与民生', '文化与教育', '国际与军事'];
+const EARLIEST_NEWS_DATE = '20260504';
 // ====================
 
 // 全局状态
@@ -724,6 +1932,8 @@ let currentDateStr = null;
 let aiQuestions = null;
 let quizShown = false;
 let historyCache = null; // { dates: [], trends: {} }
+let currentQuizIndex = 0;
+let calendarView = null; // { year, month } month: 0-11
 
 function bjDateStr(offset = 0) {
   const now = new Date(Date.now() + offset * 86400000);
@@ -741,6 +1951,26 @@ function formatDate(yyyymmdd) {
 
 function shortDate(yyyymmdd) {
   return `${parseInt(yyyymmdd.slice(4,6))}/${parseInt(yyyymmdd.slice(6,8))}`;
+}
+
+function ymdToDate(yyyymmdd) {
+  if (!yyyymmdd) return null;
+  return new Date(
+    Number(yyyymmdd.slice(0, 4)),
+    Number(yyyymmdd.slice(4, 6)) - 1,
+    Number(yyyymmdd.slice(6, 8))
+  );
+}
+
+function dateToYmd(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}${m}${d}`;
+}
+
+function monthTitle(year, month) {
+  return `${year} 年 ${month + 1} 月`;
 }
 
 function escapeHtml(s) {
@@ -811,24 +2041,6 @@ function buildAnnotationMap(annotations) {
 function renderContent(newsData, aiData) {
   const area = document.getElementById('contentArea');
   const annoMap = buildAnnotationMap(aiData.news_annotations);
-  let html = '';
-
-  html += '<div class="ai-section">';
-  html += '<div class="ai-badge">AI 解读</div>';
-  html += `<p class="ai-summary">${escapeHtml(aiData.summary)}</p>`;
-  if (aiData.highlights && aiData.highlights.length) {
-    html += '<div class="highlights-title">今日关键信号</div>';
-    html += '<ul class="highlights">';
-    for (const h of aiData.highlights) {
-      html += `<li>${escapeHtml(h)}</li>`;
-    }
-    html += '</ul>';
-  }
-  html += '</div>';
-
-  html += '<div class="section-label">详细内容（按时效分组）</div>';
-  
-  // 按 timeframe 分组：短期 → 中期 → 长期
   const TIMEFRAME_ORDER = ['短期', '中期', '长期'];
   const TIMEFRAME_DESC = {
     '短期': '当下事件 · 本月本季度',
@@ -837,7 +2049,7 @@ function renderContent(newsData, aiData) {
   };
   const grouped = { '短期': [], '中期': [], '长期': [], '未分类': [] };
   
-  for (const item of newsData.details) {
+  const annotatedNews = newsData.details.map((item, originalIndex) => {
     let anno = annoMap.get(item.title);
     if (!anno) {
       for (const [k, v] of annoMap) {
@@ -848,9 +2060,35 @@ function renderContent(newsData, aiData) {
       }
     }
     const tf = (anno && TIMEFRAME_ORDER.includes(anno.timeframe)) ? anno.timeframe : '未分类';
-    grouped[tf].push({ item, anno });
+    const row = { item, anno, tf, id: `news-${originalIndex + 1}` };
+    grouped[tf].push(row);
+    return row;
+  });
+
+  let html = '';
+
+  html += '<section class="ai-section">';
+  html += '<div class="ai-badge">今日解读</div>';
+  html += `<p class="ai-summary">${escapeHtml(aiData.summary)}</p>`;
+  if (aiData.highlights && aiData.highlights.length) {
+    html += '<div class="highlights-title">今日关键信号</div>';
+    html += '<ul class="highlights">';
+    aiData.highlights.slice(0, 5).forEach((h, i) => {
+      html += `<li>
+        <span class="highlight-rank">${i + 1}</span>
+        <span>${escapeHtml(h)}</span>
+      </li>`;
+    });
+    html += '</ul>';
   }
+  html += '</section>';
+
+  html += `<div class="section-heading">
+    <h2>新闻详情</h2>
+    <span class="section-note">按时效分组 · ${annotatedNews.length} 条</span>
+  </div>`;
   
+  let globalRank = 0;
   for (const tf of [...TIMEFRAME_ORDER, '未分类']) {
     const arr = grouped[tf];
     if (!arr.length) continue;
@@ -862,46 +2100,70 @@ function renderContent(newsData, aiData) {
     }
     html += `<span class="group-count">${arr.length} 条</span>`;
     html += '</div>';
+    html += '<div class="news-stream">';
     
-    for (const { item, anno } of arr) {
+    for (const { item, anno, id } of arr) {
+      globalRank++;
       const keyPhrases = anno ? anno.key_phrases : [];
       const oneLine = anno ? anno.one_line : null;
       const category = anno ? (anno.category || anno.domain) : null;
       const topics = anno ? (anno.topics || []) : [];
+      const paragraphs = item.body.split(/\n+/).filter(p => p.trim());
+      const preview = oneLine || paragraphs[0] || '暂无摘要';
       
-      html += '<div class="news-item">';
+      html += `<article class="news-item" id="${id}">`;
+      html += `<div class="news-rank">${globalRank}</div>`;
+      html += '<div class="news-main">';
       html += '<div class="news-head">';
       html += `<h3>${escapeHtml(item.title)}</h3>`;
       if (category) {
-        html += `<span class="domain-tag" style="border-color:${CATEGORY_COLORS[category] || 'var(--border)'};color:${CATEGORY_COLORS[category] || 'var(--muted)'}">${escapeHtml(category)}</span>`;
+        html += `<span class="domain-tag" style="color:${CATEGORY_COLORS[category] || 'var(--muted)'}">${escapeHtml(category)}</span>`;
       }
       html += '</div>';
-      // 小主题标签
       if (topics.length) {
         html += '<div class="topic-tags">';
-        for (const t of topics) {
+        for (const t of topics.slice(0, 4)) {
           html += `<span class="topic-tag">#${escapeHtml(t)}</span>`;
         }
         html += '</div>';
       }
-      if (oneLine) {
-        html += `<div class="news-one-line">💡 ${escapeHtml(oneLine)}</div>`;
-      }
-      const paragraphs = item.body.split(/\n+/).filter(p => p.trim());
+      html += `<div class="news-one-line">${escapeHtml(preview)}</div>`;
+      html += '<div class="news-body">';
       const occurrenceMap = new Map();
       for (const p of paragraphs) {
         html += `<p>${highlightText(p, keyPhrases, occurrenceMap)}</p>`;
       }
       html += '</div>';
+      html += '</div>';
+      html += `<button class="news-toggle" type="button" data-target="${id}" aria-expanded="false" aria-label="展开全文">⌄</button>`;
+      html += '</article>';
     }
+    html += '</div>';
   }
 
   area.innerHTML = html;
+  setupContentInteractions();
   document.getElementById('gate').style.display = 'block';
+}
+
+function setupContentInteractions() {
+  const area = document.getElementById('contentArea');
+  area.querySelectorAll('.news-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = document.getElementById(btn.dataset.target);
+      if (!card) return;
+      const expanded = !card.classList.contains('expanded');
+      card.classList.toggle('expanded', expanded);
+      btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      btn.setAttribute('aria-label', expanded ? '收起全文' : '展开全文');
+      onScroll();
+    });
+  });
 }
 
 function renderQuiz(questions) {
   const area = document.getElementById('questionsArea');
+  currentQuizIndex = 0;
   area.innerHTML = '';
   questions.forEach((q, i) => {
     const optsHtml = q.options.map((opt, j) => {
@@ -914,20 +2176,36 @@ function renderQuiz(questions) {
       `;
     }).join('');
     const html = `
-      <div class="question" data-index="${i}" data-solved="0">
-        <div class="question-text">${i + 1}. ${escapeHtml(q.question)}</div>
+      <div class="question ${i === 0 ? '' : 'is-hidden'}" data-index="${i}" data-solved="0">
+        <div class="question-text">
+          <span class="question-number">${i + 1}</span>
+          <span>${escapeHtml(q.question)}</span>
+        </div>
         <div class="options">${optsHtml}</div>
       </div>
     `;
     area.insertAdjacentHTML('beforeend', html);
   });
+
+  area.insertAdjacentHTML('beforeend', `
+    <div class="quiz-nav" id="quizNav">
+      <button class="quiz-nav-btn prev" id="quizPrev" type="button">‹ 上一题</button>
+      <div class="quiz-progress" aria-live="polite">
+        <div class="quiz-progress-text" id="quizProgressText">1 / ${questions.length} 题</div>
+        <div class="quiz-progress-track">
+          <div class="quiz-progress-fill" id="quizProgressFill"></div>
+        </div>
+      </div>
+      <button class="quiz-nav-btn next" id="quizNext" type="button">下一题 ›</button>
+    </div>
+  `);
   
   // 即时判定：选了立刻知对错
   area.querySelectorAll('input[type="radio"]').forEach(input => {
     input.addEventListener('change', (e) => {
       const qIdx = parseInt(e.target.name.replace('q', ''));
       const q = aiQuestions[qIdx];
-      const qEl = area.querySelectorAll('.question')[qIdx];
+      const qEl = area.querySelector(`.question[data-index="${qIdx}"]`);
       if (qEl.dataset.solved === '1') return; // 已答对，锁死
       
       const pickedLetter = e.target.value;
@@ -953,9 +2231,35 @@ function renderQuiz(questions) {
       }
     });
   });
+
+  document.getElementById('quizPrev').addEventListener('click', () => {
+    showQuizQuestion(currentQuizIndex - 1);
+  });
+  document.getElementById('quizNext').addEventListener('click', () => {
+    showQuizQuestion(currentQuizIndex + 1);
+  });
   
   document.getElementById('quizSubtitle').textContent = 
     `共 ${questions.length} 题，全部答对自动完成（错了可重选）`;
+  showQuizQuestion(0);
+}
+
+function showQuizQuestion(index) {
+  if (!aiQuestions || !aiQuestions.length) return;
+  currentQuizIndex = Math.max(0, Math.min(index, aiQuestions.length - 1));
+  document.querySelectorAll('#questionsArea .question').forEach(qEl => {
+    qEl.classList.toggle('is-hidden', Number(qEl.dataset.index) !== currentQuizIndex);
+  });
+
+  const prev = document.getElementById('quizPrev');
+  const next = document.getElementById('quizNext');
+  const progressText = document.getElementById('quizProgressText');
+  const progressFill = document.getElementById('quizProgressFill');
+  if (!prev || !next || !progressText || !progressFill) return;
+  prev.disabled = currentQuizIndex === 0;
+  next.disabled = currentQuizIndex === aiQuestions.length - 1;
+  progressText.textContent = `${currentQuizIndex + 1} / ${aiQuestions.length} 题`;
+  progressFill.style.width = `${((currentQuizIndex + 1) / aiQuestions.length) * 100}%`;
 }
 
 function checkAllSolved() {
@@ -986,75 +2290,18 @@ function showQuiz() {
   gate.classList.add('gate-ready');
   setTimeout(() => {
     renderQuiz(aiQuestions);
+    gate.style.display = 'none';
     document.getElementById('quiz').classList.add('show');
     document.getElementById('quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 400);
 }
 
 // 打卡天数逻辑
-function updateStreak() {
-  const today = bjDateStr(0);
-  let data = {};
-  try {
-    data = JSON.parse(localStorage.getItem('streakData') || '{}');
-  } catch (e) {}
-  
-  if (data.lastDate === today) {
-    // 今天已经打过卡
-    return data.streak || 1;
-  }
-  
-  const yesterday = bjDateStr(-1);
-  if (data.lastDate === yesterday) {
-    data.streak = (data.streak || 0) + 1;
-  } else {
-    data.streak = 1;
-  }
-  data.lastDate = today;
-  
-  try {
-    localStorage.setItem('streakData', JSON.stringify(data));
-  } catch (e) {}
-  
-  return data.streak;
-}
-
-function showStreakBadge() {
-  try {
-    const data = JSON.parse(localStorage.getItem('streakData') || '{}');
-    if (data.streak && data.streak > 0) {
-      const badge = document.getElementById('streakBadge');
-      badge.textContent = `🔥 已坚持 ${data.streak} 天`;
-      badge.classList.add('show');
-    }
-  } catch (e) {}
-}
-
 function showCompletion() {
-  // 不再隐藏 quiz —— 题目保留可回顾
   document.getElementById('gate').style.display = 'none';
-  
-  const streak = updateStreak();
   const c = document.getElementById('completion');
   c.classList.add('show');
-  
-  const streakLine = document.getElementById('streakLine');
-  if (streak === 1) {
-    streakLine.textContent = `🔥 第 1 天，开始打卡！`;
-  } else if (streak < 7) {
-    streakLine.textContent = `🔥 已连续坚持 ${streak} 天`;
-  } else if (streak < 30) {
-    streakLine.textContent = `🔥🔥 已连续坚持 ${streak} 天，离局长又近了一步`;
-  } else {
-    streakLine.textContent = `🔥🔥🔥 已连续 ${streak} 天，你就是局长`;
-  }
-  
   c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-  const params = new URLSearchParams(location.search);
-  const shortcutName = params.get('done') || '新闻联播完成';
-  const unlockBtn = document.getElementById('unlockBtn');
-  unlockBtn.href = `shortcuts://run-shortcut?name=${encodeURIComponent(shortcutName)}`;
 }
 
 window.addEventListener('scroll', onScroll, { passive: true });
@@ -1064,12 +2311,12 @@ async function loadDay(targetDate) {
   // 重置状态
   aiQuestions = null;
   quizShown = false;
+  currentQuizIndex = 0;
   document.getElementById('quiz').classList.remove('show');
   document.getElementById('completion').classList.remove('show');
   document.getElementById('gate').style.display = 'none';
   document.getElementById('progressBar').style.width = '0%';
   document.getElementById('progressLabel').textContent = '阅读 0%';
-  document.getElementById('cacheBadge').style.display = 'none';
   
   const area = document.getElementById('contentArea');
   area.innerHTML = `
@@ -1088,9 +2335,8 @@ async function loadDay(targetDate) {
     }
     
     currentDateStr = aiData._date;
-    document.getElementById('dateDisplay').textContent = formatDate(currentDateStr) + 
-      (aiData._cached ? ' · 缓存版本' : ' · 实时生成');
-    document.getElementById('cacheBadge').style.display = aiData._cached ? 'inline' : 'none';
+    document.getElementById('dateDisplay').textContent = formatDate(currentDateStr);
+    document.getElementById('dateNav').style.display = 'flex';
     
     // 题目随机抽取
     const newsCount = aiData.details.length;
@@ -1115,111 +2361,418 @@ async function loadDay(targetDate) {
 }
 
 function updateDateNav() {
-  if (!historyCache) return;
-  const dates = historyCache.dates; // 已排序（新→旧）
-  const idx = dates.indexOf(currentDateStr);
-  document.getElementById('prevDay').disabled = (idx < 0 || idx === dates.length - 1);
-  document.getElementById('nextDay').disabled = (idx <= 0);
-  document.getElementById('datePicker').textContent = `📅 ${shortDate(currentDateStr)}`;
+  if (!currentDateStr) return;
+  const selected = ymdToDate(currentDateStr);
+  calendarView = { year: selected.getFullYear(), month: selected.getMonth() };
+
+  if (historyCache && Array.isArray(historyCache.dates)) {
+    const dates = historyCache.dates; // 已排序（新→旧）
+    const idx = dates.indexOf(currentDateStr);
+    if (idx >= 0) {
+      document.getElementById('prevDay').disabled = (idx === dates.length - 1);
+      document.getElementById('nextDay').disabled = (idx === 0);
+    } else {
+      document.getElementById('prevDay').disabled = false;
+      document.getElementById('nextDay').disabled = currentDateStr >= bjDateStr();
+    }
+  } else {
+    document.getElementById('prevDay').disabled = false;
+    document.getElementById('nextDay').disabled = currentDateStr >= bjDateStr();
+  }
+
+  const pickerText = document.getElementById('datePickerText');
+  if (pickerText) pickerText.textContent = shortDate(currentDateStr);
+  renderCalendar();
+}
+
+function setCalendarOpen(open) {
+  const popover = document.getElementById('calendarPopover');
+  const picker = document.getElementById('datePicker');
+  if (!popover || !picker) return;
+  popover.hidden = !open;
+  picker.setAttribute('aria-expanded', open ? 'true' : 'false');
+  if (open) renderCalendar();
+}
+
+function renderCalendar() {
+  const grid = document.getElementById('calendarGrid');
+  const title = document.getElementById('calendarMonthTitle');
+  if (!grid || !title || !currentDateStr) return;
+
+  const selected = ymdToDate(currentDateStr);
+  if (!calendarView) {
+    calendarView = { year: selected.getFullYear(), month: selected.getMonth() };
+  }
+
+  const { year, month } = calendarView;
+  title.textContent = monthTitle(year, month);
+
+  const todayYmd = bjDateStr();
+  const today = ymdToDate(todayYmd);
+  const monthStart = new Date(year, month, 1);
+  const startOffset = (monthStart.getDay() + 6) % 7; // Monday first
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cacheDates = new Set((historyCache && Array.isArray(historyCache.dates)) ? historyCache.dates : []);
+  const hasHistoryIndex = cacheDates.size > 0;
+  let html = '';
+
+  for (let i = 0; i < 42; i++) {
+    const day = i - startOffset + 1;
+    const cellDate = new Date(year, month, day);
+    const ds = dateToYmd(cellDate);
+    const muted = day < 1 || day > daysInMonth;
+    const hasCache = cacheDates.has(ds) || ds === currentDateStr;
+    const noData = ds < EARLIEST_NEWS_DATE || (hasHistoryIndex && !hasCache);
+    const disabled = muted || ds > todayYmd || noData;
+    const classes = [
+      'calendar-day',
+      muted ? 'is-muted' : '',
+      noData ? 'is-no-data' : '',
+      ds === currentDateStr ? 'is-selected' : '',
+      ds === todayYmd ? 'is-today' : '',
+      hasCache ? 'has-cache' : ''
+    ].filter(Boolean).join(' ');
+    const titleAttr = noData ? ' title="暂无数据"' : '';
+    html += `<button class="${classes}" type="button" data-date="${ds}"${titleAttr} ${disabled ? 'disabled' : ''}>${cellDate.getDate()}</button>`;
+  }
+
+  grid.innerHTML = html;
+  grid.querySelectorAll('.calendar-day:not(:disabled)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      setCalendarOpen(false);
+      loadDay(btn.dataset.date);
+    });
+  });
+
+  const nextMonthBtn = document.getElementById('calendarNextMonth');
+  if (nextMonthBtn) {
+    const nextMonth = new Date(year, month + 1, 1);
+    const todayMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    nextMonthBtn.disabled = nextMonth > todayMonth;
+  }
 }
 
 // 渲染堆叠柱状图
+// 议题词典：用于持续关注列表和折线图
+const TOPIC_TO_CATEGORY = {
+  '中美关系': '政治与外交', '元首外交': '政治与外交', '全球治理': '政治与外交',
+  '两岸关系': '政治与外交', '国内政治': '政治与外交',
+  '十五五规划': '经济与产业', '新质生产力': '经济与产业', '高质量发展': '经济与产业',
+  '民营经济与中小企业': '经济与产业', '对外贸易': '经济与产业', '消费与文旅': '经济与产业',
+  '人工智能': '科技与生态', '新能源与双碳': '科技与生态', '航天与深海': '科技与生态',
+  '科技创新': '科技与生态', '生态保护': '科技与生态',
+  '粮食安全与现代农业': '农业与民生', '乡村振兴': '农业与民生', '民生保障': '农业与民生',
+  '城市更新与基层治理': '农业与民生', '区域协调发展': '农业与民生', '人口高质量发展': '农业与民生',
+  '文化与教育': '文化与教育',
+  '中东局势': '国际与军事', '世界其他动态': '国际与军事', '国防与军事': '国际与军事'
+};
+const TOPIC_LIST = Object.keys(TOPIC_TO_CATEGORY);
+
+// 为每个议题分配稳定颜色（按议题在词典里的索引取色）
+const TOPIC_COLOR_PALETTE = [
+  '#c0392b', '#2980b9', '#16a085', '#8e44ad', '#e67e22',
+  '#27ae60', '#f39c12', '#34495e', '#d35400', '#2c3e50',
+  '#e74c3c', '#3498db', '#1abc9c', '#9b59b6', '#f1c40f',
+  '#2ecc71', '#e84393', '#0984e3', '#00b894', '#fdcb6e',
+  '#6c5ce7', '#fd79a8', '#a29bfe', '#74b9ff', '#55efc4', '#ffeaa7'
+];
+function getTopicColor(topic) {
+  const idx = TOPIC_LIST.indexOf(topic);
+  return idx >= 0 ? TOPIC_COLOR_PALETTE[idx % TOPIC_COLOR_PALETTE.length] : '#95a5a6';
+}
+
+// 折线图相关：默认显示 top 5 议题，用户可点图例切换
+let chartActiveTopics = new Set();
+let chartFullData = null; // {dates, topicMatrix}
+
 function renderTrendChart(history) {
+  const trendSection = document.getElementById('trendSection');
   const chart = document.getElementById('trendChart');
-  const legend = document.getElementById('trendLegend');
-  const dates = history.dates.slice(0, 30).reverse(); // 最近 30 天，时序展示
-  if (!dates.length) {
-    document.getElementById('trendSection').style.display = 'none';
+  const legendEl = document.getElementById('trendLegend');
+  const listEl = document.getElementById('persistentList');
+  const allDates = history.dates.slice().sort(); // 从早到晚
+  if (!allDates.length) {
+    trendSection.style.display = 'none';
+    document.getElementById('trendEmptyHint').style.display = 'block';
     return;
   }
-  
-  // 兼容新旧数据：新格式是 {counts, topics}，旧格式直接是 counts
-  const getCounts = (ds) => {
+  document.getElementById('trendEmptyHint').style.display = 'none';
+  // 取最近 30 天
+  const dates = allDates.slice(-30);
+
+  // 收集每天每议题的 count
+  const getTopics = (ds) => {
     const t = history.trends[ds];
     if (!t) return {};
-    return t.counts || t; // 新结构有 .counts，旧的就是直接 map
+    return t.topics || {};
   };
-  
-  // 找出最大值（每天总条数）做归一化
-  let maxTotal = 0;
+
+  // 30 天每个议题的总次数（持续关注列表用）
+  const totalByTopic = {};
   for (const ds of dates) {
-    const counts = getCounts(ds);
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    if (total > maxTotal) maxTotal = total;
-  }
-  if (maxTotal === 0) maxTotal = 1;
-  
-  let html = '';
-  for (const ds of dates) {
-    const counts = getCounts(ds);
-    const total = Object.values(counts).reduce((a, b) => a + b, 0);
-    const isCurrent = (ds === currentDateStr);
-    const tooltipParts = CATEGORY_ORDER.filter(d => counts[d]).map(d => `${d}: ${counts[d]}`);
-    const tooltipText = `${shortDate(ds)} 共 ${total} 条\n` + tooltipParts.join('\n');
-    
-    html += `<div class="trend-day ${isCurrent ? 'current' : ''}" data-date="${ds}" title="${escapeHtml(tooltipText)}">`;
-    for (const category of CATEGORY_ORDER) {
-      const c = counts[category];
-      if (!c) continue;
-      const h = (c / maxTotal) * 100;
-      html += `<div class="trend-day-bar" style="height:${h}%;background:${CATEGORY_COLORS[category]};"></div>`;
+    const topics = getTopics(ds);
+    for (const [name, cnt] of Object.entries(topics)) {
+      if (!TOPIC_LIST.includes(name)) continue; // 只保留词典内的议题，过滤噪音
+      totalByTopic[name] = (totalByTopic[name] || 0) + cnt;
     }
-    html += `<span class="trend-day-label">${parseInt(ds.slice(6,8))}</span>`;
-    html += '</div>';
   }
-  chart.innerHTML = html;
-  
-  chart.querySelectorAll('.trend-day').forEach(el => {
-    el.style.cursor = 'pointer';
+  // 排序后保留次数 >= 1 的议题
+  const sortedTopics = Object.entries(totalByTopic)
+    .filter(([_, c]) => c >= 1)
+    .sort((a, b) => b[1] - a[1]);
+
+  if (!sortedTopics.length) {
+    trendSection.style.display = 'none';
+    document.getElementById('trendEmptyHint').style.display = 'block';
+    return;
+  }
+
+  // 计算最近 7 天 vs 前 7 天，用于趋势判断（如果数据不够 14 天就不算）
+  const enableTrend = dates.length >= 14;
+  const last7 = enableTrend ? dates.slice(-7) : [];
+  const prev7 = enableTrend ? dates.slice(-14, -7) : [];
+  const sumIn = (datesArr, topic) => {
+    let s = 0;
+    for (const ds of datesArr) {
+      const t = getTopics(ds);
+      s += t[topic] || 0;
+    }
+    return s;
+  };
+  const trendOf = (topic) => {
+    if (!enableTrend) return { dir: '', text: '' };
+    const a = sumIn(last7, topic);
+    const b = sumIn(prev7, topic);
+    const diff = a - b;
+    if (Math.abs(diff) <= 1) return { dir: 'stable', text: '→ 稳定' };
+    if (diff > 0) return { dir: 'up', text: '↗ 升温' };
+    return { dir: 'down', text: '↘ 回落' };
+  };
+
+  // 默认选 top 5 议题进折线图
+  if (chartActiveTopics.size === 0) {
+    sortedTopics.slice(0, 5).forEach(([t]) => chartActiveTopics.add(t));
+  }
+
+  // 准备折线图数据矩阵
+  chartFullData = { dates, getTopics, sortedTopics };
+  drawLineChart();
+
+  // ===== 图例（可点击切换） =====
+  let legendHtml = '';
+  for (const [topic, total] of sortedTopics.slice(0, 12)) {
+    const color = getTopicColor(topic);
+    const isActive = chartActiveTopics.has(topic);
+    legendHtml += `<span class="legend-item ${isActive ? '' : 'dimmed'}" data-topic="${escapeHtml(topic)}">
+      <span class="legend-swatch" style="background:${color}"></span>${escapeHtml(topic)}
+    </span>`;
+  }
+  legendEl.innerHTML = legendHtml;
+  legendEl.querySelectorAll('.legend-item').forEach(el => {
     el.addEventListener('click', () => {
-      const d = el.dataset.date;
-      if (d && d !== currentDateStr) loadDay(d);
+      const topic = el.dataset.topic;
+      if (chartActiveTopics.has(topic)) {
+        chartActiveTopics.delete(topic);
+      } else {
+        if (chartActiveTopics.size >= 6) {
+          alert('折线图最多同时显示 6 个议题，请先取消一个');
+          return;
+        }
+        chartActiveTopics.add(topic);
+      }
+      renderTrendChart(history); // 重渲
     });
   });
-  
-  // 图例
-  const presentCategories = new Set();
-  for (const ds of dates) {
-    const counts = getCounts(ds);
-    Object.keys(counts).forEach(d => presentCategories.add(d));
+
+  // ===== 持续关注列表 =====
+  const maxCount = sortedTopics[0][1];
+  let listHtml = '';
+  for (const [topic, count] of sortedTopics) {
+    const category = TOPIC_TO_CATEGORY[topic] || '';
+    const color = getTopicColor(topic);
+    const catColor = CATEGORY_COLORS[category] || 'var(--border)';
+    const trend = trendOf(topic);
+    const w = (count / maxCount) * 100;
+    const selected = chartActiveTopics.has(topic) ? 'selected' : '';
+    listHtml += `
+      <div class="persistent-row ${selected}" data-topic="${escapeHtml(topic)}">
+        <div class="persistent-info">
+          <div class="persistent-name">${escapeHtml(topic)}</div>
+          <div class="persistent-meta">
+            <span class="persistent-cat-tag" style="border-color:${catColor};color:${catColor}">${escapeHtml(category)}</span>
+            ${trend.text ? `<span class="persistent-trend ${trend.dir}">${trend.text}</span>` : ''}
+          </div>
+        </div>
+        <div class="persistent-right">
+          <span class="persistent-count">${count}</span>
+          <div class="persistent-bar-bg">
+            <div class="persistent-bar-fill" style="width:${w}%;background:${color}"></div>
+          </div>
+        </div>
+      </div>
+    `;
   }
-  let legendHtml = '';
-  for (const d of CATEGORY_ORDER) {
-    if (!presentCategories.has(d)) continue;
-    legendHtml += `<span class="legend-item"><span class="legend-swatch" style="background:${CATEGORY_COLORS[d]}"></span>${escapeHtml(d)}</span>`;
+  listEl.innerHTML = listHtml;
+  listEl.querySelectorAll('.persistent-row').forEach(el => {
+    el.addEventListener('click', () => {
+      const topic = el.dataset.topic;
+      if (chartActiveTopics.has(topic)) {
+        chartActiveTopics.delete(topic);
+      } else {
+        if (chartActiveTopics.size >= 6) {
+          alert('折线图最多同时显示 6 个议题，请先取消一个');
+          return;
+        }
+        chartActiveTopics.add(topic);
+      }
+      renderTrendChart(history);
+    });
+  });
+
+  document.getElementById('trendSubtitle').textContent =
+    `共 ${dates.length} 天数据 · ${sortedTopics.length} 个议题` +
+    (enableTrend ? '' : '（数据不足 14 天，趋势暂不显示）');
+  trendSection.style.display = 'block';
+}
+
+// 真正画 SVG 折线图
+function drawLineChart() {
+  if (!chartFullData) return;
+  const svg = document.getElementById('trendChart');
+  const { dates, getTopics } = chartFullData;
+
+  const W = 720, H = 240;
+  const padL = 36, padR = 12, padT = 12, padB = 28;
+  const innerW = W - padL - padR;
+  const innerH = H - padT - padB;
+
+  // 计算激活议题在每天的值，并取全局最大值
+  const series = {};
+  let yMax = 1;
+  for (const topic of chartActiveTopics) {
+    series[topic] = [];
+    for (const ds of dates) {
+      const c = (getTopics(ds)[topic]) || 0;
+      series[topic].push(c);
+      if (c > yMax) yMax = c;
+    }
   }
-  legend.innerHTML = legendHtml;
-  
-  document.getElementById('trendSubtitle').textContent = `共 ${dates.length} 天数据`;
-  document.getElementById('trendSection').style.display = 'block';
+  yMax = Math.max(yMax, 3); // 至少 0-3 范围
+  // Y 轴向上取整到 2 的倍数
+  yMax = Math.ceil(yMax / 2) * 2;
+
+  const xOf = (i) => padL + (dates.length <= 1 ? innerW / 2 : (i / (dates.length - 1)) * innerW);
+  const yOf = (v) => padT + innerH - (v / yMax) * innerH;
+
+  let svgHtml = '';
+
+  // Y 轴刻度（0, mid, max）
+  const yTicks = [0, Math.round(yMax / 2), yMax];
+  for (const v of yTicks) {
+    const y = yOf(v);
+    svgHtml += `<line class="trend-axis-line" x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke-dasharray="${v === 0 ? '0' : '2,3'}" opacity="${v === 0 ? '1' : '0.5'}"/>`;
+    svgHtml += `<text class="trend-axis-text" x="${padL - 6}" y="${y + 3}" text-anchor="end">${v}</text>`;
+  }
+
+  // X 轴刻度（每 5 天标一次）
+  const tickStep = Math.max(1, Math.floor(dates.length / 6));
+  for (let i = 0; i < dates.length; i += tickStep) {
+    const x = xOf(i);
+    const d = dates[i];
+    const label = `${parseInt(d.slice(4,6))}/${parseInt(d.slice(6,8))}`;
+    svgHtml += `<text class="trend-axis-text" x="${x}" y="${H - padB + 16}" text-anchor="middle">${label}</text>`;
+  }
+
+  // 折线
+  for (const [topic, values] of Object.entries(series)) {
+    const color = getTopicColor(topic);
+    const pathD = values.map((v, i) => `${i === 0 ? 'M' : 'L'} ${xOf(i).toFixed(1)} ${yOf(v).toFixed(1)}`).join(' ');
+    svgHtml += `<path class="trend-line" d="${pathD}" stroke="${color}" fill="none"/>`;
+    // 数据点
+    for (let i = 0; i < values.length; i++) {
+      svgHtml += `<circle class="trend-dot" cx="${xOf(i).toFixed(1)}" cy="${yOf(values[i]).toFixed(1)}" r="3" fill="${color}" data-topic="${escapeHtml(topic)}" data-date="${dates[i]}" data-value="${values[i]}"/>`;
+    }
+  }
+
+  svg.innerHTML = svgHtml;
+
+  // 数据点悬停 tooltip
+  const tooltip = document.getElementById('trendTooltip');
+  svg.querySelectorAll('.trend-dot').forEach(dot => {
+    dot.addEventListener('mouseenter', (e) => {
+      const topic = dot.dataset.topic;
+      const date = dot.dataset.date;
+      const value = dot.dataset.value;
+      tooltip.innerHTML = `<b>${escapeHtml(topic)}</b><br>${shortDate(date)} · ${value} 次`;
+      tooltip.style.display = 'block';
+      const rect = svg.getBoundingClientRect();
+      const wrapperRect = svg.parentElement.getBoundingClientRect();
+      tooltip.style.left = (e.clientX - wrapperRect.left + 10) + 'px';
+      tooltip.style.top = (e.clientY - wrapperRect.top - 10) + 'px';
+    });
+    dot.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+    dot.addEventListener('click', () => {
+      const date = dot.dataset.date;
+      if (date !== currentDateStr) loadDay(date);
+    });
+  });
 }
 
 // 日期切换按钮事件
 function setupDateNav() {
   document.getElementById('prevDay').addEventListener('click', () => {
-    if (!historyCache) return;
-    const idx = historyCache.dates.indexOf(currentDateStr);
-    const next = historyCache.dates[idx + 1]; // 索引大 = 更老
-    if (next) loadDay(next);
+    if (!currentDateStr) return;
+    if (historyCache && Array.isArray(historyCache.dates)) {
+      const idx = historyCache.dates.indexOf(currentDateStr);
+      const next = historyCache.dates[idx + 1]; // 索引大 = 更老
+      if (next) {
+        loadDay(next);
+        return;
+      }
+    }
+    const d = ymdToDate(currentDateStr);
+    d.setDate(d.getDate() - 1);
+    const ds = dateToYmd(d);
+    if (ds >= EARLIEST_NEWS_DATE) loadDay(ds);
   });
   document.getElementById('nextDay').addEventListener('click', () => {
-    if (!historyCache) return;
-    const idx = historyCache.dates.indexOf(currentDateStr);
-    const prev = historyCache.dates[idx - 1]; // 索引小 = 更新
-    if (prev) loadDay(prev);
+    if (!currentDateStr) return;
+    if (historyCache && Array.isArray(historyCache.dates)) {
+      const idx = historyCache.dates.indexOf(currentDateStr);
+      const prev = historyCache.dates[idx - 1]; // 索引小 = 更新
+      if (prev) {
+        loadDay(prev);
+        return;
+      }
+    }
+    const d = ymdToDate(currentDateStr);
+    d.setDate(d.getDate() + 1);
+    const ds = dateToYmd(d);
+    const hasCache = historyCache && Array.isArray(historyCache.dates) && historyCache.dates.includes(ds);
+    if (ds <= bjDateStr() && (!historyCache || hasCache)) loadDay(ds);
   });
   document.getElementById('datePicker').addEventListener('click', () => {
-    const inp = document.getElementById('hiddenDateInput');
-    if (currentDateStr) {
-      inp.value = `${currentDateStr.slice(0,4)}-${currentDateStr.slice(4,6)}-${currentDateStr.slice(6,8)}`;
-    }
-    inp.showPicker ? inp.showPicker() : inp.click();
+    const popover = document.getElementById('calendarPopover');
+    setCalendarOpen(popover.hidden);
   });
-  document.getElementById('hiddenDateInput').addEventListener('change', (e) => {
-    const v = e.target.value; // YYYY-MM-DD
-    if (!v) return;
-    const ds = v.replace(/-/g, '');
-    loadDay(ds);
+  document.getElementById('calendarPrevMonth').addEventListener('click', () => {
+    if (!calendarView) return;
+    const d = new Date(calendarView.year, calendarView.month - 1, 1);
+    calendarView = { year: d.getFullYear(), month: d.getMonth() };
+    renderCalendar();
+  });
+  document.getElementById('calendarNextMonth').addEventListener('click', () => {
+    if (!calendarView) return;
+    const d = new Date(calendarView.year, calendarView.month + 1, 1);
+    calendarView = { year: d.getFullYear(), month: d.getMonth() };
+    renderCalendar();
+  });
+  document.addEventListener('click', (e) => {
+    const nav = document.getElementById('dateNav');
+    if (nav && !nav.contains(e.target)) setCalendarOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setCalendarOpen(false);
   });
 }
 
@@ -1338,9 +2891,39 @@ function setupAdminMode() {
   });
 }
 
+// Tab 切换
+function setupTabs() {
+  const tabs = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+  
+  function activate(tabName) {
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+    panels.forEach(p => p.classList.toggle('active', p.id === `panel-${tabName}`));
+    // 更新 URL 参数（不刷新页面）
+    const url = new URL(location.href);
+    if (tabName === 'content') {
+      url.searchParams.delete('tab');
+    } else {
+      url.searchParams.set('tab', tabName);
+    }
+    history.replaceState(null, '', url);
+    // 滚到顶
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  
+  tabs.forEach(t => {
+    t.addEventListener('click', () => activate(t.dataset.tab));
+  });
+  
+  // 启动时从 URL 读
+  const params = new URLSearchParams(location.search);
+  const initTab = params.get('tab') === 'trend' ? 'trend' : 'content';
+  activate(initTab);
+}
+
 // 主入口
 (async () => {
-  showStreakBadge();
+  setupTabs();
   setupDateNav();
   setupAdminMode();
   
