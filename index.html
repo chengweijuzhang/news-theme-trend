@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#d70018">
+<meta name="theme-color" content="#9f1022">
 <title>每日新闻联播速递</title>
 <style>
   :root {
@@ -728,9 +728,9 @@
     --muted-2: #9a9ca3;
     --card: #ffffff;
     --border: #e7e7e9;
-    --accent: #d70018;
-    --accent-dark: #9d0010;
-    --accent-light: #fff0f2;
+    --accent: #9f1022;
+    --accent-dark: #780916;
+    --accent-light: #fff1f3;
     --success: #16833b;
     --success-light: #edf9f1;
     --highlight-bg: rgba(255, 218, 90, 0.42);
@@ -759,7 +759,7 @@
   }
 
   .site-header {
-    background: #c90016;
+    background: #9f1022;
     color: #fff;
     padding: calc(28px + env(safe-area-inset-top, 0)) 18px 24px;
   }
@@ -1140,7 +1140,7 @@
     background: transparent;
     color: var(--fg);
     border-radius: 0;
-    font-size: 21px;
+    font-size: 20px;
     font-weight: 850;
     letter-spacing: 0;
   }
@@ -1170,7 +1170,7 @@
 
   .highlights li {
     display: grid;
-    grid-template-columns: 34px 1fr;
+    grid-template-columns: 30px 1fr;
     align-items: center;
     gap: 13px;
     min-height: 56px;
@@ -1203,6 +1203,27 @@
     box-shadow: 0 2px 5px rgba(215, 0, 24, 0.08);
   }
 
+  .highlight-rank {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+
+  .news-rank {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+
+  .question-number {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    font-size: 14px;
+  }
+
   .news-toggle {
     display: inline-flex;
     align-items: center;
@@ -1230,11 +1251,24 @@
     justify-content: space-between;
     gap: 16px;
     margin: 18px 6px 16px;
+    position: relative;
+    padding-left: 18px;
+  }
+
+  .section-heading::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    width: 4px;
+    height: 25px;
+    border-radius: 999px;
+    background: var(--accent);
   }
 
   .section-heading h2 {
     margin: 0;
-    font-size: 22px;
+    font-size: 20px;
     line-height: 1.25;
     font-weight: 850;
     letter-spacing: 0;
@@ -1277,13 +1311,13 @@
   .group-desc,
   .group-count {
     color: var(--muted);
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 650;
   }
 
   .news-item {
     display: grid;
-    grid-template-columns: 42px 1fr 40px;
+    grid-template-columns: 34px 1fr 40px;
     gap: 15px;
     padding: 24px 28px 24px 26px;
     margin: 0;
@@ -1304,7 +1338,7 @@
   .news-item h3 {
     margin: 0;
     color: var(--fg);
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1.42;
     font-weight: 850;
     letter-spacing: 0;
@@ -1365,8 +1399,8 @@
   .news-item p {
     margin: 0 0 12px;
     color: #26262b;
-    font-size: 16px;
-    line-height: 1.9;
+    font-size: 15px;
+    line-height: 1.75;
   }
 
   .kw {
@@ -1402,22 +1436,18 @@
     gap: 11px;
     margin: 0 0 8px;
     color: var(--fg);
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 850;
     letter-spacing: 0;
   }
 
   .quiz-header h2::before {
     content: "";
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background:
-      linear-gradient(#fff, #fff) 8px 8px / 12px 2px no-repeat,
-      linear-gradient(#fff, #fff) 8px 13px / 12px 2px no-repeat,
-      linear-gradient(#fff, #fff) 8px 18px / 8px 2px no-repeat,
-      var(--accent);
-    box-shadow: 0 2px 5px rgba(215, 0, 24, 0.08);
+    width: 4px;
+    height: 25px;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: none;
   }
 
   .quiz-header p {
@@ -1436,12 +1466,12 @@
 
   .question-text {
     display: grid;
-    grid-template-columns: 44px 1fr;
+    grid-template-columns: 34px 1fr;
     align-items: start;
     gap: 14px;
     margin-bottom: 22px;
     color: var(--fg);
-    font-size: 21px;
+    font-size: 18px;
     font-weight: 850;
     line-height: 1.45;
   }
@@ -1683,7 +1713,7 @@
     }
 
     .news-item {
-      grid-template-columns: 36px 1fr 32px;
+      grid-template-columns: 32px 1fr 32px;
       gap: 10px;
       padding: 20px 16px;
       border-radius: 28px;
@@ -1695,7 +1725,7 @@
     }
 
     .news-item h3 {
-      font-size: 18px;
+      font-size: 17px;
     }
 
     .section-heading {
@@ -1705,12 +1735,12 @@
     }
 
     .quiz-header h2 {
-      font-size: 25px;
+      font-size: 20px;
     }
 
     .question-text {
-      grid-template-columns: 38px 1fr;
-      font-size: 18px;
+      grid-template-columns: 32px 1fr;
+      font-size: 17px;
     }
 
     .option {
@@ -1770,12 +1800,19 @@
     }
 
     .highlights li {
-      grid-template-columns: 32px 1fr;
+      grid-template-columns: 28px 1fr;
       gap: 10px;
     }
 
+    .highlight-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
     .news-item {
-      grid-template-columns: 34px 1fr;
+      grid-template-columns: 32px 1fr;
     }
 
     .news-toggle {
