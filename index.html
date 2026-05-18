@@ -1831,6 +1831,62 @@
       grid-column: 1 / -1;
     }
   }
+  /* ========== 免责声明 Footer ========== */
+  .site-footer {
+    margin-top: 80px;
+    padding: 32px 24px 48px;
+    background: transparent;
+    border-top: 1px solid var(--border, #e5e5e5);
+  }
+  .footer-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.75;
+  }
+  .footer-inner p {
+    margin: 0 0 10px;
+  }
+  .footer-inner p:last-child {
+    margin-bottom: 0;
+  }
+  .footer-inner a {
+    color: var(--muted);
+    text-decoration: underline;
+  }
+  .footer-inner a:hover {
+    color: var(--accent, #c8102e);
+  }
+  .footer-inner strong {
+    color: var(--fg, #333);
+    font-weight: 600;
+  }
+  .footer-meta {
+    margin-top: 16px !important;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border, #e5e5e5);
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  @media (max-width: 600px) {
+    .site-footer {
+      padding: 24px 16px 32px;
+      margin-top: 48px;
+    }
+    .footer-inner {
+      font-size: 11px;
+    }
+  }
+  .site-footer {
+  text-align: center;
+}
+.footer-inner {
+  text-align: center;
+}
+.footer-inner p {
+  text-align: center;
+}
 </style>
 </head>
 <body>
@@ -1947,6 +2003,23 @@
     </div>
   </div>
 </main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p>
+      本工具仅供个人学习参考使用。
+      新闻原文版权归原作者（中央广播电视总台《新闻联播》）所有。
+      AI 解读、议题分析、问答测验等内容均为算法生成，仅供参考，不代表任何官方立场，也不构成新闻事实陈述。
+      本工具不开展商业活动、不收集用户个人信息、不提供 API 服务。
+    </p>
+    <p>
+      如有侵权或下架请求，请联系：<a href="mailto:contact@juzhangdaxuexi.com">contact@juzhangdaxuexi.com</a>
+    </p>
+    <p class="footer-meta">
+   
+    </p>
+  </div>
+</footer>
 
 <script>
 // ====== 配置区 ======
