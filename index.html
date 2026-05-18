@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#9f1022">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#9f1022">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#9f1022">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>每日新闻联播速递</title>
 <style>
   :root {
@@ -35,7 +39,11 @@
     }
   }
   * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    background: #9f1022;
+  }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     background: var(--bg);
@@ -44,6 +52,8 @@
     padding: 0;
     line-height: 1.75;
     font-size: 16px;
+    min-height: 100vh;
+    min-height: 100dvh;
   }
   .progress-bar {
     position: fixed; top: 0; left: 0;
@@ -794,9 +804,22 @@
   }
 
   .site-header {
+    position: relative;
     background: #9f1022;
     color: #fff;
     padding: calc(28px + env(safe-area-inset-top, 0)) 18px 24px;
+  }
+
+  .site-header::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top, 0);
+    background: #9f1022;
+    z-index: 999;
+    pointer-events: none;
   }
 
   .header-inner {
@@ -2199,7 +2222,7 @@
     transition: background 0.12s ease, color 0.12s ease;
   }
   .tts-char.tts-read {
-    background: rgba(255, 196, 210, 0.45);
+    background: rgba(255, 242, 0, 0.62);
     color: inherit;
   }
   
@@ -3228,7 +3251,6 @@ function scrollToCurrentPara() {
 
 function onTTSFinishNews() {
   const finishedId = ttsCurrentId;
-  const card = finishedId ? document.getElementById(finishedId) : null;
   
   stopTTSProgressLoop();
   document.querySelectorAll('.tts-reading').forEach(p => p.classList.remove('tts-reading'));
@@ -3236,20 +3258,11 @@ function onTTSFinishNews() {
   document.querySelectorAll('.news-item.tts-active').forEach(c => c.classList.remove('tts-active'));
   const curBar = document.querySelector(`.tts-bar[data-tts-bar="${finishedId}"]`);
   if (curBar) { curBar.classList.remove('active'); curBar.classList.remove('loading'); curBar.classList.remove('error'); }
-  if (card) {
-    card.classList.remove('expanded');
-    const tg = card.querySelector('.news-toggle');
-    if (tg) {
-      tg.setAttribute('aria-expanded', 'false');
-      tg.setAttribute('aria-label', '展开全文');
-    }
-  }
   
   ttsCurrentId = null;
   ttsParaIdx = 0;
   ttsAudio = null;
   updateTTSButtonUI();
-  onScroll();
 }
 
 function stopTTS() {
