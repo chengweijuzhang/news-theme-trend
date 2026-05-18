@@ -2529,7 +2529,20 @@ async function speakCurrentPara() {
     return;
   }
   
-  const text = data.paragraphs[ttsParaIdx];
+  const rawText = data.paragraphs[ttsParaIdx];
+  // 清掉任何 HTML 标签 / 实体（双保险，防止朗读出"strong"、"p"等）
+  const text = rawText
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&[a-z]+;/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!text) {
+    // 这段是空的，跳过
+    ttsParaIdx++;
+    speakCurrentPara();
+    return;
+  }
   highlightCurrentPara();
   
   // 用 AbortController 让切换时能取消
