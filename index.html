@@ -2072,6 +2072,7 @@
       <button class="admin-btn" id="backfillBtn">补 7 天</button>
       <button class="admin-btn" id="backfillNextBtn">继续补下一批 7 天</button>
       <button class="admin-btn admin-btn-danger" id="clearBtn">清空所有数据</button>
+      <button class="admin-btn" id="clearTtsBtn" style="background:#9b59b6;">清空朗读缓存</button>
     </div>
     <div class="admin-log" id="adminLog"></div>
   </div>
@@ -3463,6 +3464,33 @@ function setupAdminMode() {
       clearBtn.disabled = false;
     }
   });
+  
+  // 清 TTS 缓存
+  const clearTtsBtn = document.getElementById('clearTtsBtn');
+  if (clearTtsBtn) {
+    clearTtsBtn.addEventListener('click', async () => {
+      if (!confirm('清空所有朗读音频缓存？\n清完后下次听某段会重新生成（约 1-2 秒）。\n建议在调整音色或修复 bug 后操作。')) return;
+      clearTtsBtn.disabled = true;
+      appendAdminLog('<div class="admin-log-line">⏳ 正在清空朗读缓存…</div>');
+      try {
+        const resp = await fetch(AI_WORKER_URL + '/admin/clear-tts', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ secret: adminSecret })
+        });
+        if (!resp.ok) {
+          const e = await resp.json().catch(() => ({}));
+          throw new Error(e.error || `HTTP ${resp.status}`);
+        }
+        const result = await resp.json();
+        appendAdminLog(`<div class="admin-log-line ok">✓ 已删除 ${result.deleted} 条朗读音频缓存</div>`);
+      } catch (e) {
+        appendAdminLog(`<div class="admin-log-line err">✗ 清空失败：${escapeHtml(e.message)}</div>`);
+      } finally {
+        clearTtsBtn.disabled = false;
+      }
+    });
+  }
 }
 
 // Tab 切换
