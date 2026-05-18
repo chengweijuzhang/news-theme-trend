@@ -1317,7 +1317,7 @@
 
   .news-item {
     display: grid;
-    grid-template-columns: 34px 1fr 40px;
+    grid-template-columns: 34px 1fr 44px;
     gap: 15px;
     padding: 24px 28px 24px 26px;
     margin: 0;
@@ -1887,6 +1887,132 @@
 .footer-inner p {
   text-align: center;
 }
+  /* ========== 朗读 TTS 样式 ========== */
+  .news-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-left: 8px;
+  }
+  .news-tts-btn {
+    background: transparent;
+    border: 1.5px solid var(--border, #e5e5e5);
+    color: var(--fg, #333);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.18s;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+  }
+  .news-tts-btn:hover {
+    border-color: var(--accent, #c8102e);
+    color: var(--accent, #c8102e);
+    transform: scale(1.05);
+  }
+  .news-tts-btn.playing {
+    background: var(--accent, #c8102e);
+    border-color: var(--accent, #c8102e);
+    color: #fff;
+    animation: tts-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes tts-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(200, 16, 46, 0); }
+  }
+  .tts-btn-icon {
+    pointer-events: none;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Emoji", sans-serif;
+  }
+  
+  /* 朗读控制栏（在 news-body 末尾，默认隐藏） */
+  .tts-bar {
+    display: none;
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(200, 16, 46, 0.04);
+    border: 1px solid rgba(200, 16, 46, 0.18);
+    border-radius: 10px;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .tts-bar.active { display: flex; }
+  .tts-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--accent, #c8102e);
+    font-weight: 600;
+  }
+  .tts-icon {
+    display: inline-flex;
+    width: 16px; height: 16px;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+  }
+  .tts-rates {
+    display: flex;
+    gap: 4px;
+    margin-left: auto;
+    flex-wrap: wrap;
+  }
+  .tts-rate {
+    background: white;
+    border: 1px solid var(--border, #e5e5e5);
+    color: var(--muted, #888);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    -webkit-tap-highlight-color: transparent;
+    font-variant-numeric: tabular-nums;
+  }
+  .tts-rate:hover {
+    border-color: var(--accent, #c8102e);
+    color: var(--accent, #c8102e);
+  }
+  .tts-rate.active {
+    background: var(--accent, #c8102e);
+    border-color: var(--accent, #c8102e);
+    color: white;
+  }
+  
+  /* 当前正在朗读的段落 - 高亮动画 */
+  .news-body p.tts-reading {
+    background: linear-gradient(90deg, 
+      rgba(255, 230, 130, 0.55) 0%, 
+      rgba(255, 230, 130, 0.35) 100%);
+    border-left: 3px solid var(--accent, #c8102e);
+    padding-left: 12px !important;
+    margin-left: -15px !important;
+    border-radius: 0 6px 6px 0;
+    animation: tts-reading-pulse 1.4s ease-in-out infinite;
+    transition: all 0.25s ease;
+  }
+  @keyframes tts-reading-pulse {
+    0%, 100% { background: linear-gradient(90deg, rgba(255, 230, 130, 0.55) 0%, rgba(255, 230, 130, 0.35) 100%); }
+    50% { background: linear-gradient(90deg, rgba(255, 220, 100, 0.7) 0%, rgba(255, 220, 100, 0.4) 100%); }
+  }
+  
+  @media (max-width: 600px) {
+    .news-tts-btn { width: 28px; height: 28px; font-size: 12px; }
+    .tts-bar { padding: 10px 12px; gap: 8px; }
+    .tts-rate { padding: 3px 8px; font-size: 10px; }
+    .tts-rates { gap: 3px; }
+  }
+
 </style>
 </head>
 <body>
@@ -2045,6 +2171,16 @@ let historyCache = null; // { dates: [], trends: {} }
 let currentQuizIndex = 0;
 let calendarView = null; // { year, month } month: 0-11
 
+// 朗读 TTS 状态（基于 Azure TTS + Audio 元素）
+let newsTextMap = new Map(); // id -> { title, paragraphs, rank }
+let ttsCurrentId = null;     // 当前正在朗读的新闻 id
+let ttsParaIdx = 0;          // 当前段落索引
+let ttsAudio = null;         // 当前 Audio 元素
+let ttsLoading = false;      // 是否正在请求音频
+let ttsRate = parseFloat(localStorage.getItem('tts-rate') || '1');
+let ttsVoice = localStorage.getItem('tts-voice') || 'zh-CN-YunyangNeural';
+let ttsAbortCtrl = null;     // AbortController 用于取消正在 fetch 的请求
+
 function bjDateStr(offset = 0) {
   const now = new Date(Date.now() + offset * 86400000);
   const utc = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -2149,6 +2285,10 @@ function buildAnnotationMap(annotations) {
 }
 
 function renderContent(newsData, aiData) {
+  // 停掉可能正在播放的语音
+  if (typeof stopTTS === 'function') stopTTS();
+  newsTextMap = new Map();
+  
   const area = document.getElementById('contentArea');
   const annoMap = buildAnnotationMap(aiData.news_annotations);
   const TIMEFRAME_ORDER = ['短期', '中期', '长期'];
@@ -2221,6 +2361,9 @@ function renderContent(newsData, aiData) {
       const paragraphs = item.body.split(/\n+/).filter(p => p.trim());
       const preview = oneLine || paragraphs[0] || '暂无摘要';
       
+      // 记录原文段落（朗读用，避免被 HTML 高亮污染）
+      newsTextMap.set(id, { title: item.title, paragraphs, rank: globalRank });
+      
       html += `<article class="news-item" id="${id}">`;
       html += `<div class="news-rank">${globalRank}</div>`;
       html += '<div class="news-main">';
@@ -2240,12 +2383,32 @@ function renderContent(newsData, aiData) {
       html += `<div class="news-one-line">${escapeHtml(preview)}</div>`;
       html += '<div class="news-body">';
       const occurrenceMap = new Map();
-      for (const p of paragraphs) {
-        html += `<p>${highlightText(p, keyPhrases, occurrenceMap)}</p>`;
-      }
-      html += '</div>';
-      html += '</div>';
-      html += `<button class="news-toggle" type="button" data-target="${id}" aria-expanded="false" aria-label="展开全文">⌄</button>`;
+      paragraphs.forEach((p, pi) => {
+        html += `<p data-para-idx="${pi}">${highlightText(p, keyPhrases, occurrenceMap)}</p>`;
+      });
+      // 朗读控制条 —— 默认隐藏，点 🔊 后显示
+      html += `<div class="tts-bar" data-tts-bar="${id}">
+        <div class="tts-status">
+          <span class="tts-icon">🔊</span>
+          <span class="tts-text">正在朗读…</span>
+        </div>
+        <div class="tts-rates" role="group" aria-label="倍速选择">
+          <button type="button" class="tts-rate" data-rate="0.75">0.75x</button>
+          <button type="button" class="tts-rate" data-rate="1">1x</button>
+          <button type="button" class="tts-rate" data-rate="1.25">1.25x</button>
+          <button type="button" class="tts-rate" data-rate="1.5">1.5x</button>
+          <button type="button" class="tts-rate" data-rate="2">2x</button>
+        </div>
+      </div>`;
+      html += '</div>'; // news-body
+      html += '</div>'; // news-main
+      // 右上角按钮组：朗读 + 展开
+      html += `<div class="news-actions">
+        <button class="news-tts-btn" type="button" data-tts-target="${id}" aria-label="朗读这条新闻">
+          <span class="tts-btn-icon">🔊</span>
+        </button>
+        <button class="news-toggle" type="button" data-target="${id}" aria-expanded="false" aria-label="展开全文">⌄</button>
+      </div>`;
       html += '</article>';
     }
     html += '</div>';
@@ -2253,6 +2416,7 @@ function renderContent(newsData, aiData) {
 
   area.innerHTML = html;
   setupContentInteractions();
+  setupTTS();
   document.getElementById('gate').style.display = 'block';
 }
 
@@ -2270,6 +2434,293 @@ function setupContentInteractions() {
     });
   });
 }
+
+// ========== 朗读 TTS 模块（Azure TTS via Worker + Audio 元素）==========
+function isTTSSupported() {
+  // Audio 元素在所有现代浏览器都支持
+  return 'Audio' in window && 'fetch' in window;
+}
+
+function setupTTS() {
+  if (!isTTSSupported()) {
+    document.querySelectorAll('.news-tts-btn').forEach(b => b.style.display = 'none');
+    return;
+  }
+  
+  // 绑定每个新闻的朗读按钮
+  document.querySelectorAll('.news-tts-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.ttsTarget;
+      if (ttsCurrentId === id) {
+        // 当前在播这条 → 暂停/恢复
+        if (ttsAudio) {
+          if (ttsAudio.paused) {
+            ttsAudio.play().catch(()=>{});
+          } else {
+            ttsAudio.pause();
+          }
+          updateTTSButtonUI();
+        } else if (!ttsLoading) {
+          // 已结束又点 → 重新开始
+          startTTS(id, 0);
+        }
+      } else {
+        // 切换到新的新闻
+        stopTTS();
+        startTTS(id, 0);
+      }
+    });
+  });
+  
+  // 绑定倍速按钮
+  document.querySelectorAll('.tts-rate').forEach(btn => {
+    if (parseFloat(btn.dataset.rate) === ttsRate) btn.classList.add('active');
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const newRate = parseFloat(btn.dataset.rate);
+      ttsRate = newRate;
+      localStorage.setItem('tts-rate', String(newRate));
+      document.querySelectorAll('.tts-rate').forEach(b => {
+        b.classList.toggle('active', parseFloat(b.dataset.rate) === ttsRate);
+      });
+      // 倍速即时生效：直接改 audio.playbackRate（不用重新请求 mp3）
+      if (ttsAudio) {
+        ttsAudio.playbackRate = ttsRate;
+      }
+    });
+  });
+}
+
+function startTTS(newsId, startParaIdx) {
+  const data = newsTextMap.get(newsId);
+  if (!data || !data.paragraphs.length) return;
+  
+  ttsCurrentId = newsId;
+  ttsParaIdx = startParaIdx;
+  
+  // 确保新闻是展开的
+  const card = document.getElementById(newsId);
+  if (card && !card.classList.contains('expanded')) {
+    card.classList.add('expanded');
+    const tg = card.querySelector('.news-toggle');
+    if (tg) {
+      tg.setAttribute('aria-expanded', 'true');
+      tg.setAttribute('aria-label', '收起全文');
+    }
+  }
+  
+  // 显示这条的朗读栏
+  document.querySelectorAll('.tts-bar').forEach(b => b.classList.remove('active'));
+  const bar = card?.querySelector('.tts-bar');
+  if (bar) bar.classList.add('active');
+  
+  scrollToCurrentPara();
+  speakCurrentPara();
+  updateTTSButtonUI();
+}
+
+async function speakCurrentPara() {
+  const data = newsTextMap.get(ttsCurrentId);
+  if (!data) return;
+  
+  if (ttsParaIdx >= data.paragraphs.length) {
+    onTTSFinishNews();
+    return;
+  }
+  
+  const text = data.paragraphs[ttsParaIdx];
+  highlightCurrentPara();
+  
+  // 用 AbortController 让切换时能取消
+  if (ttsAbortCtrl) ttsAbortCtrl.abort();
+  ttsAbortCtrl = new AbortController();
+  const savedId = ttsCurrentId;
+  const savedIdx = ttsParaIdx;
+  
+  ttsLoading = true;
+  setBarLoading(true);
+  
+  try {
+    const resp = await fetch(AI_WORKER_URL + '/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, voice: ttsVoice, rate: '0%' }),
+      signal: ttsAbortCtrl.signal
+    });
+    
+    // 中途换了新闻或换了段落
+    if (savedId !== ttsCurrentId || savedIdx !== ttsParaIdx) return;
+    
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      console.warn('TTS error', err);
+      setBarError(err.error || '朗读失败');
+      ttsLoading = false;
+      return;
+    }
+    
+    const blob = await resp.blob();
+    if (savedId !== ttsCurrentId || savedIdx !== ttsParaIdx) return;
+    
+    const url = URL.createObjectURL(blob);
+    
+    if (ttsAudio) {
+      try { ttsAudio.pause(); } catch(e){}
+      ttsAudio = null;
+    }
+    
+    const audio = new Audio(url);
+    audio.playbackRate = ttsRate;
+    audio.onended = () => {
+      URL.revokeObjectURL(url);
+      if (ttsAudio !== audio) return;
+      ttsParaIdx++;
+      highlightCurrentPara();
+      scrollToCurrentPara();
+      speakCurrentPara();
+    };
+    audio.onerror = () => {
+      console.warn('Audio play error');
+      URL.revokeObjectURL(url);
+      ttsLoading = false;
+      setBarError('播放失败');
+    };
+    audio.onplay = () => {
+      ttsLoading = false;
+      setBarLoading(false);
+      updateTTSButtonUI();
+    };
+    audio.onpause = () => {
+      updateTTSButtonUI();
+    };
+    
+    ttsAudio = audio;
+    try {
+      await audio.play();
+    } catch (e) {
+      // 自动播放被阻止（iOS Safari 首次需要用户手势触发）
+      console.warn('autoplay blocked', e);
+      ttsLoading = false;
+    }
+  } catch (e) {
+    if (e.name === 'AbortError') return; // 主动取消，忽略
+    console.warn('TTS request failed', e);
+    setBarError('网络错误');
+    ttsLoading = false;
+  }
+}
+
+function setBarLoading(isLoading) {
+  if (!ttsCurrentId) return;
+  const card = document.getElementById(ttsCurrentId);
+  if (!card) return;
+  const txt = card.querySelector('.tts-text');
+  if (!txt) return;
+  if (isLoading) {
+    txt.textContent = '正在生成音频…';
+    card.querySelector('.tts-bar')?.classList.add('loading');
+  } else {
+    txt.textContent = '正在朗读…';
+    card.querySelector('.tts-bar')?.classList.remove('loading');
+  }
+}
+
+function setBarError(msg) {
+  if (!ttsCurrentId) return;
+  const card = document.getElementById(ttsCurrentId);
+  if (!card) return;
+  const txt = card.querySelector('.tts-text');
+  if (txt) txt.textContent = `⚠️ ${msg}`;
+}
+
+function highlightCurrentPara() {
+  document.querySelectorAll('.tts-reading').forEach(p => p.classList.remove('tts-reading'));
+  if (!ttsCurrentId) return;
+  const card = document.getElementById(ttsCurrentId);
+  if (!card) return;
+  const p = card.querySelector(`.news-body p[data-para-idx="${ttsParaIdx}"]`);
+  if (p) p.classList.add('tts-reading');
+}
+
+function scrollToCurrentPara() {
+  if (!ttsCurrentId) return;
+  const card = document.getElementById(ttsCurrentId);
+  if (!card) return;
+  const p = card.querySelector(`.news-body p[data-para-idx="${ttsParaIdx}"]`);
+  if (p) {
+    const rect = p.getBoundingClientRect();
+    const vh = window.innerHeight;
+    if (rect.top < 80 || rect.bottom > vh - 100) {
+      p.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+}
+
+function onTTSFinishNews() {
+  const cards = Array.from(document.querySelectorAll('.news-item'));
+  const curIdx = cards.findIndex(c => c.id === ttsCurrentId);
+  
+  document.querySelectorAll('.tts-reading').forEach(p => p.classList.remove('tts-reading'));
+  const curBar = document.querySelector(`.tts-bar[data-tts-bar="${ttsCurrentId}"]`);
+  if (curBar) curBar.classList.remove('active');
+  
+  if (curIdx >= 0 && curIdx < cards.length - 1) {
+    const nextId = cards[curIdx + 1].id;
+    ttsCurrentId = nextId;
+    ttsParaIdx = 0;
+    startTTS(nextId, 0);
+  } else {
+    ttsCurrentId = null;
+    ttsParaIdx = 0;
+    ttsAudio = null;
+    updateTTSButtonUI();
+  }
+}
+
+function stopTTS() {
+  if (ttsAbortCtrl) { try { ttsAbortCtrl.abort(); } catch(e){} ttsAbortCtrl = null; }
+  if (ttsAudio) { try { ttsAudio.pause(); } catch(e){} ttsAudio = null; }
+  ttsCurrentId = null;
+  ttsParaIdx = 0;
+  ttsLoading = false;
+  document.querySelectorAll('.tts-reading').forEach(p => p.classList.remove('tts-reading'));
+  document.querySelectorAll('.tts-bar').forEach(b => { b.classList.remove('active'); b.classList.remove('loading'); });
+  updateTTSButtonUI();
+}
+
+function updateTTSButtonUI() {
+  document.querySelectorAll('.news-tts-btn').forEach(btn => {
+    const id = btn.dataset.ttsTarget;
+    const icon = btn.querySelector('.tts-btn-icon');
+    if (id === ttsCurrentId) {
+      if (ttsLoading) {
+        icon.textContent = '⋯';
+        btn.classList.add('playing');
+        btn.setAttribute('aria-label', '加载中');
+      } else if (ttsAudio && !ttsAudio.paused) {
+        icon.textContent = '⏸';
+        btn.classList.add('playing');
+        btn.setAttribute('aria-label', '暂停朗读');
+      } else if (ttsAudio && ttsAudio.paused) {
+        icon.textContent = '▶︎';
+        btn.classList.add('playing');
+        btn.setAttribute('aria-label', '继续朗读');
+      } else {
+        icon.textContent = '🔊';
+        btn.classList.remove('playing');
+        btn.setAttribute('aria-label', '朗读这条新闻');
+      }
+    } else {
+      icon.textContent = '🔊';
+      btn.classList.remove('playing');
+      btn.setAttribute('aria-label', '朗读这条新闻');
+    }
+  });
+}
+
+// 切换日期 / 关闭页面时停掉朗读
+window.addEventListener('beforeunload', stopTTS);
 
 function renderQuiz(questions) {
   const area = document.getElementById('questionsArea');
