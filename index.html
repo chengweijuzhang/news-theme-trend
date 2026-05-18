@@ -2178,7 +2178,7 @@ let ttsParaIdx = 0;          // 当前段落索引
 let ttsAudio = null;         // 当前 Audio 元素
 let ttsLoading = false;      // 是否正在请求音频
 let ttsRate = parseFloat(localStorage.getItem('tts-rate') || '1');
-let ttsVoice = localStorage.getItem('tts-voice') || 'zh-CN-XiaohanNeural';
+let ttsVoice = localStorage.getItem('tts-voice') || 'zh-CN-YunyangNeural';
 let ttsAbortCtrl = null;     // AbortController 用于取消正在 fetch 的请求
 
 function bjDateStr(offset = 0) {
