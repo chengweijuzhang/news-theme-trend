@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#9f1022">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#9f1022">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#9f1022">
+<meta name="theme-color" content="#a70708">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#a70708">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#a70708">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>每日新闻联播速递</title>
+<title>每日新闻速递</title>
 <style>
   :root {
     --bg: #fafaf7;
@@ -16,8 +16,9 @@
     --muted: #888;
     --card: #fff;
     --border: #e5e5e0;
-    --accent: #c8102e;
-    --accent-light: #fde8eb;
+    --accent: #a70708;
+    --accent-rgb: 167, 7, 8;
+    --accent-light: #fff1f1;
     --success: #2d7a3e;
     --highlight-bg: rgba(255, 213, 79, 0.45);
     --highlight-fg: inherit;
@@ -30,7 +31,8 @@
       --muted: #999;
       --card: #1a1a1a;
       --border: #2a2a2a;
-      --accent: #ff4d6a;
+    --accent: #a70708;
+    --accent-rgb: 167, 7, 8;
       --accent-light: #2a1418;
       --success: #4ade80;
       --highlight-bg: rgba(255, 213, 79, 0.25);
@@ -39,10 +41,22 @@
     }
   }
   * { box-sizing: border-box; }
+  .ui-icon {
+    width: 18px;
+    height: 18px;
+    display: inline-block;
+    flex: 0 0 auto;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
-    background: #9f1022;
+    scrollbar-gutter: stable;
+    background: #a70708;
   }
   body {
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
@@ -613,7 +627,7 @@
   }
   .legend-item:hover {
     background: var(--accent-light);
-    border-color: rgba(200, 16, 46, 0.28);
+    border-color: rgba(var(--accent-rgb), 0.28);
   }
   .legend-remove {
     color: var(--muted);
@@ -649,7 +663,7 @@
   .persistent-row:hover { background: var(--accent-light); }
   .persistent-row.selected {
     background: var(--accent-light);
-    border: 1px solid rgba(200, 16, 46, 0.22);
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
   }
   .persistent-info {
     flex: 1;
@@ -773,9 +787,10 @@
     --muted-2: #9a9ca3;
     --card: #ffffff;
     --border: #e7e7e9;
-    --accent: #9f1022;
-    --accent-dark: #780916;
-    --accent-light: #fff1f3;
+    --accent: #a70708;
+    --accent-rgb: 167, 7, 8;
+    --accent-dark: #760000;
+    --accent-light: #fff1f1;
     --success: #16833b;
     --success-light: #edf9f1;
     --highlight-bg: rgba(255, 218, 90, 0.42);
@@ -790,8 +805,8 @@
     background:
       linear-gradient(
         180deg,
-        #9f1022 0,
-        #9f1022 calc(env(safe-area-inset-top, 0px) + 1px),
+        #140000 0,
+        #140000 calc(env(safe-area-inset-top, 0px) + 1px),
         #f6f6f4 calc(env(safe-area-inset-top, 0px) + 1px),
         #f6f6f4 100%
       ),
@@ -811,9 +826,21 @@
 
   .site-header {
     position: relative;
-    background: #9f1022;
+    background:
+      linear-gradient(180deg, #140000 0%, #690000 42%, #d80a00 74%, #ff7935 100%);
     color: #fff;
-    padding: calc(28px + env(safe-area-inset-top, 0)) 18px 24px;
+    padding: calc(60px + env(safe-area-inset-top, 0)) 18px 19px;
+    overflow: hidden;
+    box-shadow: inset 0 -24px 44px rgba(255, 122, 52, 0.14);
+  }
+
+  .site-header::after {
+    content: none;
+  }
+
+  .site-header .header-inner {
+    position: relative;
+    z-index: 1;
   }
 
   .site-header::before {
@@ -823,7 +850,7 @@
     left: 0;
     right: 0;
     height: env(safe-area-inset-top, 0);
-    background: #9f1022;
+    background: #140000;
     z-index: 999;
     pointer-events: none;
   }
@@ -834,34 +861,44 @@
   }
 
   .header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 24px;
+    display: block;
   }
 
   .brand-block {
+    display: flex;
+    flex-direction: column;
     min-width: 0;
+    transform: translateY(19px);
   }
 
   .title {
+    order: 1;
     margin: 0;
+    margin-top: 48px;
     color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
     font-size: clamp(31px, 4vw, 48px);
     line-height: 1.1;
     font-weight: 850;
     letter-spacing: 0;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: normal;
+    transform: none;
+    text-shadow: none;
   }
 
   .header-meta {
+    order: 2;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 16px;
+    margin-top: 22px;
     color: rgba(255, 255, 255, 0.92);
     font-size: 15px;
     font-weight: 600;
+    line-height: inherit;
   }
 
   .date {
@@ -902,7 +939,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    margin-top: 34px;
+    margin-top: 98px;
     flex-wrap: nowrap;
   }
 
@@ -914,17 +951,18 @@
     gap: 0;
     margin: 0;
     padding: 3px;
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     border-radius: 18px;
-    background: rgba(124, 0, 12, 0.24);
+    background: rgba(83, 0, 8, 0.28);
     backdrop-filter: blur(16px);
+    box-shadow: none;
   }
 
   .tab-btn {
     min-width: 120px;
     flex: 0 0 auto;
     margin: 0;
-    padding: 10px 15px;
+    padding: 9px 14px;
     border: 0;
     border-radius: 15px;
     color: rgba(255, 255, 255, 0.88);
@@ -940,7 +978,7 @@
     color: var(--accent);
     background: #fff;
     border-bottom-color: transparent;
-    box-shadow: 0 10px 22px rgba(87, 0, 8, 0.15);
+    box-shadow: none;
   }
 
   .date-nav {
@@ -955,8 +993,8 @@
   .date-arrow,
   .date-current,
   .calendar-month-btn {
-    border: 1px solid rgba(255, 255, 255, 0.24);
-    background: rgba(124, 0, 12, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(83, 0, 8, 0.22);
     color: #fff;
     border-radius: 15px;
     cursor: pointer;
@@ -965,10 +1003,12 @@
   }
 
   .date-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 40px;
     height: 42px;
     padding: 0;
-    font-size: 26px;
     line-height: 1;
   }
 
@@ -982,6 +1022,24 @@
     padding: 0 13px;
     font-size: 14px;
     font-weight: 680;
+  }
+
+  .date-arrow .ui-icon {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.4;
+  }
+
+  .ui-icon[data-icon="chevronLeft"] {
+    transform: translateX(-0.7px);
+  }
+
+  .ui-icon[data-icon="chevronRight"] {
+    transform: translateX(0.7px);
+  }
+
+  .ui-icon[data-icon="chevronDown"] {
+    transform: translateY(0.6px);
   }
 
   .date-arrow:hover,
@@ -1005,7 +1063,7 @@
   }
 
   button:focus-visible {
-    outline: 3px solid rgba(215, 0, 24, 0.18);
+    outline: 3px solid rgba(var(--accent-rgb), 0.18);
     outline-offset: 3px;
   }
 
@@ -1020,6 +1078,7 @@
   .date-icon {
     width: 15px;
     height: 15px;
+    flex: 0 0 15px;
     border: 2px solid currentColor;
     border-radius: 4px;
     position: relative;
@@ -1071,10 +1130,18 @@
     width: 38px;
     height: 38px;
     padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     border-color: var(--border);
     background: #fff;
     color: var(--fg);
-    font-size: 24px;
+  }
+
+  .calendar-month-btn .ui-icon {
+    width: 17px;
+    height: 17px;
+    stroke-width: 2.2;
   }
 
   .calendar-weekdays,
@@ -1118,7 +1185,7 @@
   }
 
   .calendar-day.is-today {
-    box-shadow: inset 0 0 0 1px rgba(215, 0, 24, 0.38);
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.38);
   }
 
   .calendar-day.is-selected {
@@ -1163,7 +1230,7 @@
   }
 
   .spinner {
-    border-color: rgba(215, 0, 24, 0.12);
+    border-color: rgba(var(--accent-rgb), 0.12);
     border-top-color: var(--accent);
   }
 
@@ -1264,16 +1331,10 @@
     color: #fff;
     font-size: 16px;
     font-weight: 850;
-    box-shadow: 0 2px 5px rgba(215, 0, 24, 0.08);
+    box-shadow: 0 2px 5px rgba(var(--accent-rgb), 0.08);
   }
 
-  .highlight-rank {
-    width: 30px;
-    height: 30px;
-    border-radius: 9px;
-    font-size: 14px;
-  }
-
+  .highlight-rank,
   .news-rank {
     width: 30px;
     height: 30px;
@@ -1294,18 +1355,19 @@
     justify-content: center;
     width: 34px;
     height: 34px;
-    border: 0;
+    border: 1px solid rgba(16, 16, 20, 0.12);
     border-radius: 999px;
     background: transparent;
     color: #747780;
     font-size: 26px;
     line-height: 1;
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+    transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, transform 0.15s ease;
   }
 
   .news-toggle:hover {
-    background: var(--accent-light);
+    border-color: rgba(var(--accent-rgb), 0.24);
+    background: rgba(var(--accent-rgb), 0.06);
     color: var(--accent);
   }
 
@@ -1456,7 +1518,13 @@
     display: block;
   }
 
-  .news-item.expanded .news-toggle {
+  .news-toggle .ui-icon {
+    width: 18px;
+    height: 18px;
+    transition: transform 0.18s ease;
+  }
+
+  .news-item.expanded .news-toggle .ui-icon {
     transform: rotate(180deg);
   }
 
@@ -1478,7 +1546,7 @@
   .gate {
     margin-top: 34px;
     padding: 22px;
-    border: 1px dashed rgba(215, 0, 24, 0.35);
+    border: 1px dashed rgba(var(--accent-rgb), 0.35);
     border-radius: var(--radius-lg);
     background: #fff;
     color: var(--accent);
@@ -1569,14 +1637,14 @@
   }
 
   .option:hover {
-    border-color: rgba(215, 0, 24, 0.42);
+    border-color: rgba(var(--accent-rgb), 0.42);
   }
 
   .option:has(input:checked),
   .option.wrong,
   .option.wrong:has(input:checked) {
-    border-color: #ff343f;
-    background: linear-gradient(90deg, #fff1f3, #fff);
+    border-color: var(--accent);
+    background: linear-gradient(90deg, var(--accent-light), #fff);
   }
 
   .option.correct,
@@ -1665,7 +1733,7 @@
   }
 
   .completion {
-    border-color: rgba(215, 0, 24, 0.24);
+    border-color: rgba(var(--accent-rgb), 0.24);
     border-width: 1px;
     border-radius: var(--radius-xl);
     background: linear-gradient(180deg, #fff, #fff8f9);
@@ -1693,7 +1761,7 @@
   }
 
   .persistent-row.selected {
-    border: 1px solid rgba(200, 16, 46, 0.22);
+    border: 1px solid rgba(var(--accent-rgb), 0.22);
     background: var(--accent-light);
   }
 
@@ -1705,18 +1773,24 @@
     .site-header {
       padding-left: 14px;
       padding-right: 14px;
+      padding-top: calc(54px + env(safe-area-inset-top, 0));
+      padding-bottom: 19px;
     }
 
     .header-top {
-      display: grid;
-      gap: 18px;
+      display: block;
     }
 
     .header-controls {
-      gap: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 68px;
       overflow: visible;
       padding-bottom: 2px;
       scrollbar-width: none;
+      flex-wrap: nowrap;
     }
 
     .header-controls::-webkit-scrollbar {
@@ -1728,33 +1802,58 @@
     }
 
     .tabs {
-      flex: 0 0 auto;
+      width: auto;
+      flex: 1 1 auto;
       min-width: 0;
-      display: inline-flex;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-radius: 999px;
     }
 
     .tab-btn {
-      min-width: 104px;
-      padding-left: 12px;
-      padding-right: 12px;
-      font-size: 13px;
+      min-width: 0;
+      padding-left: 6px;
+      padding-right: 6px;
+      font-size: 12px;
+      white-space: nowrap;
+      border-radius: 999px;
     }
 
     .date-nav {
+      width: auto;
+      margin: 0;
       flex: 0 0 auto;
-      justify-content: flex-start;
+      justify-content: center;
       display: flex;
-      gap: 8px;
+      gap: 3px;
     }
 
     .date-current {
       width: auto;
+      min-width: 66px;
+      height: 36px;
+      padding: 0 9px;
+      gap: 6px;
+      font-size: 12px;
+      border-radius: 999px;
+    }
+
+    .date-arrow {
+      width: 28px;
+      height: 36px;
+      font-size: 21px;
+      border-radius: 999px;
     }
 
     .calendar-popover {
-      right: 0;
-      transform: none;
-      width: min(314px, calc(100vw - 32px));
+      position: fixed;
+      left: 50%;
+      right: auto;
+      top: calc(env(safe-area-inset-top, 0px) + 86px);
+      transform: translateX(-50%);
+      width: min(314px, calc(100vw - 28px));
+      max-height: calc(100dvh - 112px);
+      overflow-y: auto;
     }
 
     .container {
@@ -1832,34 +1931,38 @@
 
   @media (max-width: 430px) {
     .title {
+      width: auto;
+      margin-left: 0;
+      margin-top: 42px;
       font-size: 31px;
+      transform: none;
     }
 
     .tabs {
-      border-radius: 16px;
+      border-radius: 999px;
     }
 
     .tab-btn {
-      min-width: 92px;
-      padding: 9px 10px;
-      border-radius: 13px;
-      font-size: 12px;
+      min-width: 0;
+      padding: 8px 5px;
+      border-radius: 999px;
+      font-size: 11.5px;
       font-weight: 650;
     }
 
     .date-arrow {
-      width: 36px;
-      height: 38px;
-      font-size: 24px;
-      border-radius: 13px;
+      width: 26px;
+      height: 34px;
+      font-size: 20px;
+      border-radius: 999px;
     }
 
     .date-current {
-      min-width: 84px;
-      height: 38px;
-      gap: 7px;
-      padding: 0 10px;
-      font-size: 13px;
+      min-width: 64px;
+      height: 34px;
+      gap: 5px;
+      padding: 0 8px;
+      font-size: 11.5px;
     }
 
     .highlights li {
@@ -1867,7 +1970,8 @@
       gap: 10px;
     }
 
-    .highlight-rank {
+    .highlight-rank,
+    .news-rank {
       width: 28px;
       height: 28px;
       border-radius: 8px;
@@ -1919,7 +2023,7 @@
     text-decoration: underline;
   }
   .footer-inner a:hover {
-    color: var(--accent, #c8102e);
+    color: var(--accent, #a70708);
   }
   .footer-inner strong {
     color: var(--fg, #333);
@@ -1979,28 +2083,28 @@
     padding: 0;
   }
   .news-tts-btn:hover {
-    border-color: var(--accent, #c8102e);
-    color: var(--accent, #c8102e);
+    border-color: var(--accent, #a70708);
+    color: var(--accent, #a70708);
     transform: scale(1.05);
   }
   .tts-bar .news-tts-btn:hover {
     transform: none;
   }
   .news-tts-btn.playing {
-    background: var(--accent, #c8102e);
-    border-color: var(--accent, #c8102e);
+    background: var(--accent, #a70708);
+    border-color: var(--accent, #a70708);
     color: #fff;
     animation: tts-pulse 1.8s ease-in-out infinite;
   }
   .news-tts-btn[data-tts-state="paused"] {
-    background: var(--accent-light, #fde8eb);
-    border-color: rgba(200, 16, 46, 0.28);
-    color: var(--accent, #c8102e);
+    background: var(--accent-light, #fff1f1);
+    border-color: rgba(var(--accent-rgb), 0.28);
+    color: var(--accent, #a70708);
     animation: none;
   }
   @keyframes tts-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(200, 16, 46, 0.4); }
-    50% { box-shadow: 0 0 0 8px rgba(200, 16, 46, 0); }
+    0%, 100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(var(--accent-rgb), 0); }
   }
   .tts-btn-icon {
     position: relative;
@@ -2089,14 +2193,50 @@
     0%, 100% { opacity: 0.45; transform: scale(0.82); }
     50% { opacity: 1; transform: scale(1); }
   }
+  .tts-btn-icon::before,
+  .tts-btn-icon::after {
+    content: none !important;
+    display: none !important;
+  }
+  .tts-btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tts-btn-icon .tts-state-icon {
+    width: 18px;
+    height: 18px;
+    display: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .news-tts-btn[data-tts-state="idle"] .tts-state-speaker,
+  .news-tts-btn:not([data-tts-state]) .tts-state-speaker {
+    display: block;
+  }
+  .news-tts-btn[data-tts-state="loading"] .tts-state-loader,
+  .news-tts-btn[data-tts-state="playing"] .tts-state-pause,
+  .news-tts-btn[data-tts-state="paused"] .tts-state-play {
+    display: block;
+  }
+  .tts-state-loader circle {
+    fill: currentColor;
+    stroke: none;
+    animation: tts-dot-pulse 1s ease-in-out infinite;
+  }
+  .tts-state-loader circle:nth-child(2) { animation-delay: 0.12s; }
+  .tts-state-loader circle:nth-child(3) { animation-delay: 0.24s; }
   
   /* 朗读控制栏（在 news-body 末尾，默认隐藏） */
   .tts-bar {
     display: none;
     margin-top: 16px;
     padding: 12px;
-    background: rgba(200, 16, 46, 0.035);
-    border: 1px solid rgba(200, 16, 46, 0.16);
+    background: rgba(var(--accent-rgb), 0.035);
+    border: 1px solid rgba(var(--accent-rgb), 0.16);
     border-radius: 16px;
     align-items: center;
     gap: 12px;
@@ -2107,18 +2247,18 @@
     width: 38px;
     height: 38px;
     background: var(--card, #fff);
-    border-color: rgba(200, 16, 46, 0.22);
-    color: var(--accent, #c8102e);
+    border-color: rgba(var(--accent-rgb), 0.22);
+    color: var(--accent, #a70708);
   }
   .tts-bar-play.playing {
-    background: var(--accent, #c8102e);
-    border-color: var(--accent, #c8102e);
+    background: var(--accent, #a70708);
+    border-color: var(--accent, #a70708);
     color: #fff;
   }
   .tts-bar-play[data-tts-state="paused"] {
-    background: var(--accent-light, #fde8eb);
-    border-color: rgba(200, 16, 46, 0.24);
-    color: var(--accent, #c8102e);
+    background: var(--accent-light, #fff1f1);
+    border-color: rgba(var(--accent-rgb), 0.24);
+    color: var(--accent, #a70708);
   }
   .tts-main {
     display: grid;
@@ -2130,7 +2270,7 @@
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: var(--accent, #c8102e);
+    color: var(--accent, #a70708);
     font-weight: 600;
   }
   .tts-progress {
@@ -2145,7 +2285,7 @@
     width: 0%;
     height: 100%;
     border-radius: inherit;
-    background: var(--accent, #c8102e);
+    background: var(--accent, #a70708);
     transition: width 0.16s linear;
   }
   .tts-icon {
@@ -2156,8 +2296,8 @@
     justify-content: center;
     flex-shrink: 0;
     border-radius: 50%;
-    background: var(--accent-light, #fde8eb);
-    color: var(--accent, #c8102e);
+    background: var(--accent-light, #fff1f1);
+    color: var(--accent, #a70708);
     font-size: 0;
   }
   .tts-bar.error .tts-icon::before {
@@ -2202,12 +2342,12 @@
     font-variant-numeric: tabular-nums;
   }
   .tts-rate:hover {
-    border-color: var(--accent, #c8102e);
-    color: var(--accent, #c8102e);
+    border-color: var(--accent, #a70708);
+    color: var(--accent, #a70708);
   }
   .tts-rate.active {
-    background: var(--accent, #c8102e);
-    border-color: var(--accent, #c8102e);
+    background: var(--accent, #a70708);
+    border-color: var(--accent, #a70708);
     color: white;
   }
   
@@ -2215,7 +2355,7 @@
   .news-body p.tts-reading {
     position: relative;
     background: var(--card, #fff);
-    border-left: 3px solid rgba(200, 16, 46, 0.55);
+    border-left: 3px solid rgba(var(--accent-rgb), 0.55);
     padding: 8px 10px 8px 14px !important;
     margin: 2px 0 14px 0 !important;
     border-radius: 0 10px 10px 0;
@@ -2239,11 +2379,11 @@
       padding: 20px 16px;
     }
     .news-rank {
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
       margin: 0 0 12px;
-      border-radius: 12px;
-      font-size: 15px;
+      border-radius: 9px;
+      font-size: 14px;
     }
     .news-main {
       width: 100%;
@@ -2285,6 +2425,1094 @@
     }
   }
 
+  /* 收藏夹本地存储提示条 */
+  .fav-storage-hint {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+    background: linear-gradient(90deg, #fff9e8, #fffdf4);
+    border: 1px solid rgba(244, 180, 0, 0.28);
+    border-radius: 18px;
+    padding: 14px 16px;
+    margin-bottom: 22px;
+    font-size: 12.5px;
+    color: #6b5800;
+    line-height: 1.6;
+    overflow: hidden;
+    text-align: left;
+  }
+  .fav-storage-hint > span:last-child {
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .fav-storage-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: rgba(244, 180, 0, 0.11);
+    color: #b57b00;
+  }
+  .fav-storage-icon .ui-icon {
+    width: 17px;
+    height: 17px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fav-storage-hint {
+      background: linear-gradient(90deg, rgba(244, 180, 0, 0.08), rgba(244, 180, 0, 0.04));
+      color: #f4d96c;
+      border-color: rgba(244, 180, 0, 0.3);
+    }
+    .fav-storage-icon {
+      background: rgba(244, 180, 0, 0.14);
+      color: #f4d96c;
+    }
+  }
+  @media (max-width: 600px) {
+    .fav-storage-hint {
+      grid-template-columns: 28px minmax(0, 1fr);
+      font-size: 11.5px;
+      padding: 11px 12px;
+      border-radius: 14px;
+    }
+    .fav-storage-icon {
+      width: 28px;
+      height: 28px;
+    }
+  }
+  
+  /* ========== 收藏夹 ========== */
+  /* 顶部新建收藏夹工具栏 */
+  .fav-folder-toolbar {
+    margin-bottom: 14px;
+  }
+  .fav-new-folder-toolbar-btn {
+    width: 100%;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    background: transparent;
+    color: var(--fg, #1a1a1a);
+    border: 0;
+    border-bottom: 1px solid rgba(16, 16, 20, 0.06);
+    padding: 0 2px;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 750;
+    box-shadow: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-new-folder-toolbar-btn span {
+    flex: 1;
+    text-align: left;
+  }
+  .fav-new-folder-toolbar-btn .ui-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--accent, #a70708);
+  }
+  .fav-new-folder-toolbar-btn .ui-icon:last-child {
+    color: var(--muted, #888);
+  }
+  .fav-new-folder-toolbar-btn:hover {
+    color: var(--accent, #a70708);
+    background: transparent;
+  }
+  .fav-new-folder-input {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+    max-width: 520px;
+    align-items: center;
+  }
+  .fav-new-folder-input input {
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 0 12px;
+    border: 1.5px solid var(--border, #e5e5e5);
+    border-radius: 12px;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+  }
+  .fav-new-folder-input input:focus { border-color: var(--accent, #a70708); }
+  .fav-new-folder-input button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    padding: 0 14px;
+    border-radius: 9px;
+    border: 1px solid var(--border, #e5e5e5);
+    background: white;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 600;
+    -webkit-tap-highlight-color: transparent;
+    white-space: nowrap;
+  }
+  .fav-new-folder-input button.icon-only {
+    width: 30px;
+    min-width: 30px;
+    padding: 0;
+  }
+  .fav-new-folder-input button .ui-icon {
+    width: 13px;
+    height: 13px;
+    stroke-width: 1.8;
+  }
+  .fav-new-folder-input button.fav-new-folder-confirm {
+    background: var(--accent, #a70708);
+    color: white;
+    border-color: var(--accent, #a70708);
+  }
+  .fav-new-folder-input button:hover { opacity: 0.9; }
+  
+  /* 收藏夹块 */
+  .fav-folder-block {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    margin-bottom: 24px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fav-folder-block { background: rgba(255,255,255,0.02); }
+  }
+  .fav-folder-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 13px 14px;
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: 20px;
+    background: var(--card, #fff);
+    box-shadow: var(--shadow-soft, 0 10px 30px rgba(14, 18, 27, 0.05));
+    flex-wrap: wrap;
+    cursor: pointer;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  }
+  .fav-folder-header:hover {
+    border-color: rgba(var(--accent-rgb), 0.16);
+    box-shadow: 0 14px 32px rgba(14, 18, 27, 0.07);
+    transform: translateY(-1px);
+  }
+  .fav-folder-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--fg, #1a1a1a);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .fav-folder-name .ui-icon {
+    color: var(--accent, #a70708);
+  }
+  .fav-folder-item-count {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--accent, #a70708);
+    background: var(--accent-light, #fff1f1);
+    padding: 1px 6px;
+    border-radius: 999px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fav-folder-item-count { background: rgba(255,255,255,0.08); }
+  }
+  .fav-folder-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    align-items: center;
+    cursor: default;
+  }
+  .fav-folder-detail-head {
+    display: grid;
+    gap: 12px;
+    margin: 0 0 16px;
+  }
+  .fav-folder-back {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: 999px;
+    background: var(--card, #fff);
+    color: var(--muted, #888);
+    font-size: 12px;
+    font-weight: 750;
+    cursor: pointer;
+  }
+  .fav-folder-back:hover {
+    color: var(--accent, #a70708);
+    border-color: rgba(var(--accent-rgb), 0.14);
+    background: var(--accent-light, #fff1f1);
+  }
+  .fav-folder-back .ui-icon {
+    width: 15px;
+    height: 15px;
+  }
+  .fav-folder-detail-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: 20px;
+    background: var(--card, #fff);
+    box-shadow: var(--shadow-soft, 0 10px 30px rgba(14, 18, 27, 0.05));
+  }
+  .fav-folder-detail-title-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    color: var(--fg, #1a1a1a);
+    font-size: 17px;
+    font-weight: 850;
+  }
+  .fav-folder-detail-title-main .ui-icon {
+    color: var(--accent, #a70708);
+  }
+  .fav-folder-empty-tip {
+    text-align: center;
+    color: var(--muted, #888);
+    font-size: 12.5px;
+    padding: 16px 0;
+    font-style: italic;
+  }
+  
+  /* 同时在其他夹的提示 */
+  .fav-item-other-folders {
+    font-size: 11.5px;
+    color: var(--muted, #888);
+    margin: 6px 0 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .fav-other-folder-pill {
+    background: rgba(0,0,0,0.04);
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 10.5px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fav-other-folder-pill { background: rgba(255,255,255,0.06); }
+  }
+  
+  /* 收藏弹框：收藏夹选择部分 */
+  .fav-folder-section {
+    background: #f8f8f6;
+    border: 1px solid rgba(16, 16, 20, 0.06);
+    border-radius: 16px;
+    padding: 14px;
+    margin: 14px 0 16px;
+  }
+  @media (prefers-color-scheme: dark) {
+    .fav-folder-section { background: rgba(255,255,255,0.04); }
+  }
+  .fav-folder-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg, #1a1a1a);
+    margin-bottom: 10px;
+  }
+  .fav-folder-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 176px;
+    overflow-y: auto;
+  }
+  .fav-folder-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13.5px;
+    cursor: pointer;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.62);
+    border: 1px solid rgba(16, 16, 20, 0.05);
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .fav-folder-check:hover {
+    background: #fff;
+    border-color: rgba(200,16,46,0.16);
+  }
+  @media (prefers-color-scheme: dark) {
+    .fav-folder-check:hover { background: rgba(255,255,255,0.04); }
+  }
+  .fav-folder-check input[type="checkbox"] {
+    width: 16px; height: 16px;
+    accent-color: var(--accent, #a70708);
+  }
+  .fav-folder-empty {
+    text-align: center;
+    color: var(--muted, #888);
+    font-size: 12px;
+    padding: 12px 0;
+    font-style: italic;
+  }
+  .fav-new-folder-row {
+    margin-top: 12px;
+  }
+  .fav-new-folder-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    background: transparent;
+    color: var(--accent, #a70708);
+    border: 0;
+    min-height: 30px;
+    padding: 0;
+    border-radius: 0;
+    cursor: pointer;
+    font-size: 12.5px;
+    font-weight: 750;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-new-folder-btn .ui-icon {
+    width: 15px;
+    height: 15px;
+  }
+  .fav-new-folder-btn:hover {
+    background: transparent;
+    color: var(--accent-dark, #760000);
+  }
+  .fav-note-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--fg, #1a1a1a);
+    margin: 14px 0 6px;
+  }
+  
+  /* 确认按钮 disabled */
+  .fav-note-btn.confirm:disabled {
+    background: var(--border, #e5e5e5);
+    color: var(--muted, #aaa);
+    cursor: not-allowed;
+  }
+  /* Tab 上的徽章 */
+  .fav-count-badge {
+    display: inline-block;
+    background: var(--accent, #a70708);
+    color: white;
+    font-size: 11px;
+    line-height: 1;
+    padding: 2px 6px;
+    border-radius: 999px;
+    margin-left: 4px;
+    font-weight: 700;
+    min-width: 16px;
+    text-align: center;
+    vertical-align: 1px;
+  }
+  
+  /* 收藏按钮（新闻卡片上） */
+  .news-actions .news-fav-btn,
+  .news-actions .news-tts-btn {
+    background: transparent;
+    border: 1px solid rgba(16, 16, 20, 0.13);
+    color: #5f636d;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    box-shadow: none;
+    transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .news-actions .news-fav-btn:hover,
+  .news-actions .news-tts-btn:hover {
+    border-color: rgba(var(--accent-rgb), 0.28);
+    background: rgba(var(--accent-rgb), 0.06);
+    color: var(--accent, #a70708);
+    box-shadow: none;
+    transform: translateY(-1px);
+  }
+  .news-actions .news-fav-btn .fav-star,
+  .news-actions .news-tts-btn .tts-btn-icon {
+    width: 18px;
+    height: 18px;
+  }
+  .news-actions .news-fav-btn .fav-star {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: fill 0.2s, stroke 0.2s;
+  }
+  .news-actions .news-fav-btn.favorited,
+  .news-actions .news-tts-btn[data-tts-state="paused"] {
+    border-color: rgba(var(--accent-rgb), 0.3);
+    background: rgba(var(--accent-rgb), 0.08);
+    color: var(--accent, #a70708);
+  }
+  .news-actions .news-tts-btn[data-tts-state="playing"],
+  .news-actions .news-tts-btn[data-tts-state="loading"] {
+    border-color: var(--accent, #a70708);
+    background: var(--accent, #a70708);
+    color: #fff;
+  }
+  .news-actions .news-fav-btn.favorited .fav-star {
+    fill: currentColor;
+    stroke: currentColor;
+  }
+  .news-actions .news-fav-btn.just-favorited {
+    animation: fav-pop 0.4s ease;
+  }
+  @keyframes fav-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+  }
+  
+  /* 收藏夹页面 */
+  .fav-page {
+    background: transparent;
+    border-radius: 0;
+    padding: 6px 2px 0;
+    box-shadow: none;
+    border: 0;
+  }
+  .fav-page-header {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: nowrap;
+  }
+  .fav-page-header > div:first-child {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .fav-page-title {
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 850;
+    color: var(--fg, #1a1a1a);
+    margin: 0;
+  }
+  .fav-page-sub {
+    font-size: 13px;
+    color: var(--muted, #888);
+    margin-top: 6px;
+  }
+  .fav-page-title-row {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .fav-page-title-top,
+  .fav-page-title-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+  }
+  .fav-page-title-main {
+    align-items: baseline;
+  }
+  .fav-page-title-name {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .fav-page-title-count {
+    align-self: center;
+    color: var(--muted, #888);
+    font-size: 12px;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .fav-title-back {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border: 1px solid rgba(16, 16, 20, 0.12);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted, #888);
+    cursor: pointer;
+    padding: 0;
+  }
+  .fav-title-back:hover {
+    color: var(--accent, #a70708);
+    border-color: rgba(var(--accent-rgb), 0.24);
+    background: rgba(var(--accent-rgb), 0.06);
+  }
+  .fav-title-back .ui-icon {
+    width: 25px;
+    height: 25px;
+    stroke-width: 2.2;
+  }
+  .fav-page-title-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    justify-self: end;
+  }
+  .fav-page-title-actions .fav-icon-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+  }
+  .fav-page-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .fav-backup-panel {
+    position: relative;
+    margin-left: auto;
+    flex: 0 0 auto;
+    margin-bottom: 1px;
+  }
+  .fav-backup-panel > summary {
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 0 2px;
+    border-radius: 999px;
+    border: 0;
+    background: transparent;
+    color: var(--muted, #888);
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+    list-style: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-backup-panel > summary::-webkit-details-marker {
+    display: none;
+  }
+  .fav-backup-panel > summary:hover {
+    color: var(--accent, #a70708);
+    background: transparent;
+  }
+  .fav-backup-panel > summary .ui-icon {
+    width: 13px;
+    height: 13px;
+  }
+  .fav-backup-chevron {
+    transition: transform 0.18s ease;
+  }
+  .fav-backup-panel[open] .fav-backup-chevron {
+    transform: rotate(180deg);
+  }
+  .fav-backup-content {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: min(520px, calc(100vw - 36px));
+    margin-top: 10px;
+    padding: 14px;
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 46px rgba(14, 18, 27, 0.14);
+    z-index: 60;
+  }
+  .fav-backup-actions {
+    margin-bottom: 12px;
+  }
+  .fav-backup-content .fav-storage-hint {
+    margin-bottom: 0;
+  }
+  .fav-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    min-width: 92px;
+    height: 40px;
+    background: transparent;
+    color: var(--fg, #1a1a1a);
+    border: 1px solid rgba(16, 16, 20, 0.13);
+    padding: 0 13px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 750;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-action-btn:hover {
+    border-color: rgba(var(--accent-rgb), 0.28);
+    color: var(--accent, #a70708);
+    background: rgba(var(--accent-rgb), 0.06);
+    transform: translateY(-1px);
+  }
+  .fav-action-btn .ui-icon {
+    width: 17px;
+    height: 17px;
+  }
+  
+  /* 议题分组 */
+  .fav-group {
+    margin-bottom: 28px;
+  }
+  .fav-group-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent, #a70708);
+    border-left: 3px solid var(--accent, #a70708);
+    padding-left: 10px;
+    margin: 0 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .fav-group-count {
+    font-size: 12px;
+    color: var(--muted, #888);
+    font-weight: 500;
+  }
+  
+  /* 单条收藏 */
+  .fav-item {
+    background: var(--card, white);
+    border: 1px solid rgba(16, 16, 20, 0.08);
+    border-radius: 20px;
+    padding: 17px 18px;
+    margin-bottom: 12px;
+    transition: box-shadow 0.18s, transform 0.18s;
+  }
+  .fav-item:hover {
+    box-shadow: 0 12px 30px rgba(14, 18, 27, 0.07);
+    transform: translateY(-1px);
+  }
+  .fav-item-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .fav-item-title {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: var(--fg, #1a1a1a);
+    line-height: 1.45;
+    flex: 1;
+  }
+  .fav-item-date {
+    font-size: 11.5px;
+    color: var(--muted, #888);
+    font-variant-numeric: tabular-nums;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .fav-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 6px;
+    margin: 4px 0 10px;
+  }
+  .fav-item-tag {
+    display: inline-block;
+    padding: 1px 7px;
+    background: rgba(var(--accent-rgb), 0.06);
+    color: var(--accent, #a70708);
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+  }
+  .fav-item-summary {
+    font-size: 13.5px;
+    color: var(--fg-soft, #4a4a4a);
+    line-height: 1.65;
+    margin: 0 0 10px;
+  }
+  .fav-item-summary.is-clickable {
+    cursor: pointer;
+    border-radius: 10px;
+    transition: color 0.15s ease, background 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-item-summary.is-clickable:hover,
+  .fav-item-summary.is-clickable:focus-visible {
+    color: var(--accent, #a70708);
+    background: rgba(var(--accent-rgb), 0.04);
+    outline: none;
+  }
+  .fav-item-body {
+    display: none;
+    margin: 2px 0 12px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border, #ececec);
+  }
+  .fav-item.expanded .fav-item-body {
+    display: block;
+  }
+  .fav-item-body p {
+    margin: 0 0 10px;
+    font-size: 13.5px;
+    color: var(--fg-soft, #4a4a4a);
+    line-height: 1.75;
+  }
+  .fav-item-body p:last-child {
+    margin-bottom: 0;
+  }
+  .fav-item-note {
+    background: #f1f1f3;
+    border-left: 3px solid var(--accent, #a70708);
+    padding: 10px 12px;
+    border-radius: 0 12px 12px 0;
+    font-size: 12.5px;
+    color: var(--fg, #1a1a1a);
+    margin: 0 0 10px;
+    line-height: 1.6;
+  }
+  .fav-item-note .fav-note-label {
+    font-size: 11px;
+    color: var(--accent, #a70708);
+    font-weight: 700;
+    margin-right: 6px;
+  }
+  .fav-item-actions {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border, #ececec);
+  }
+  .fav-link-btn,
+  .fav-icon-btn {
+    background: transparent;
+    color: var(--muted, #888);
+    border: 1px solid rgba(16, 16, 20, 0.12);
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0;
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-link-btn:hover,
+  .fav-icon-btn:hover {
+    text-decoration: none;
+    color: var(--accent, #a70708);
+    background: rgba(var(--accent-rgb), 0.06);
+    border-color: rgba(var(--accent-rgb), 0.24);
+    transform: translateY(-1px);
+  }
+  .fav-link-btn.danger,
+  .fav-icon-btn.danger { color: var(--muted, #888); }
+  .fav-link-btn.danger:hover,
+  .fav-icon-btn.danger:hover {
+    color: var(--accent, #a70708);
+    background: rgba(var(--accent-rgb), 0.06);
+    border-color: rgba(var(--accent-rgb), 0.24);
+  }
+  .fav-link-btn.muted,
+  .fav-icon-btn.muted { color: var(--muted, #888); }
+  .fav-link-btn.muted:hover,
+  .fav-icon-btn.muted:hover {
+    color: var(--fg, #1a1a1a);
+    background: rgba(16, 16, 20, 0.05);
+    border-color: rgba(16, 16, 20, 0.18);
+  }
+  .fav-icon-btn.star {
+    color: var(--accent, #a70708);
+  }
+  .fav-icon-btn.star .ui-icon {
+    fill: currentColor;
+  }
+  .fav-icon-btn .ui-icon,
+  .fav-link-btn .ui-icon {
+    width: 17px;
+    height: 17px;
+  }
+  
+  /* 空状态 */
+  .fav-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted, #888);
+  }
+  .fav-empty p { margin: 6px 0; font-size: 14px; }
+  
+  /* 收藏时的备注弹框 */
+  .fav-note-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(16, 16, 20, 0.42);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    animation: fade-in 0.18s ease;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .fav-note-box {
+    background: var(--card, white);
+    border-radius: 24px;
+    padding: 24px;
+    max-width: 480px;
+    width: 100%;
+    max-height: calc(100dvh - 36px);
+    overflow-y: auto;
+    box-shadow: 0 24px 70px rgba(16, 16, 20, 0.24);
+    animation: scale-in 0.22s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .fav-folder-dialog .fav-note-box {
+    max-width: 360px;
+    padding: 22px;
+  }
+  .fav-folder-dialog-input {
+    width: 100%;
+    height: 44px;
+    margin-top: 14px;
+    padding: 0 13px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border, #e5e5e5);
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+  }
+  .fav-folder-dialog-input:focus {
+    border-color: var(--accent, #a70708);
+  }
+  @keyframes scale-in {
+    from { transform: scale(0.92); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .fav-note-box h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 850;
+    color: var(--fg, #1a1a1a);
+  }
+  .fav-note-box .news-preview {
+    background: #f8f8f6;
+    border: 1px solid rgba(16, 16, 20, 0.06);
+    border-radius: 16px;
+    padding: 12px 14px;
+    margin: 14px 0 14px;
+    font-size: 13px;
+    color: var(--fg-soft, #4a4a4a);
+    line-height: 1.55;
+    max-height: 116px;
+    overflow-y: auto;
+  }
+  .fav-note-box .fav-new-folder-input {
+    width: 100%;
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px;
+    align-items: center;
+    margin-top: 10px;
+  }
+  .fav-note-box .fav-new-folder-input[hidden] {
+    display: none;
+  }
+  .fav-note-box .fav-new-folder-input button {
+    min-width: 30px;
+  }
+  .fav-note-box textarea {
+    width: 100%;
+    min-height: 86px;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1.5px solid var(--border, #e5e5e5);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+  }
+  .fav-note-box textarea:focus {
+    border-color: var(--accent, #a70708);
+  }
+  .fav-note-box .note-hint {
+    font-size: 11.5px;
+    color: var(--muted, #888);
+    margin: 6px 0 0;
+  }
+  .fav-note-actions {
+    display: flex;
+    gap: 7px;
+    margin-top: 14px;
+    justify-content: flex-end;
+  }
+  .fav-note-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 86px;
+    height: 40px;
+    padding: 0 18px;
+    border-radius: 13px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 750;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .fav-note-btn.icon-only {
+    min-width: 0;
+    width: 34px;
+    height: 30px;
+    padding: 0;
+    border-radius: 10px;
+  }
+  .fav-note-btn .ui-icon {
+    width: 14px;
+    height: 14px;
+    stroke-width: 1.8;
+  }
+  .fav-note-btn.cancel {
+    background: white;
+    color: var(--muted, #888);
+    border: 1px solid var(--border, #e5e5e5);
+  }
+  .fav-note-btn.cancel:hover { color: var(--fg, #1a1a1a); border-color: var(--fg-soft, #4a4a4a); }
+  .fav-note-btn.confirm {
+    background: var(--accent, #a70708);
+    color: white;
+  }
+  .fav-note-btn.confirm:hover { opacity: 0.9; }
+  
+  /* Toast */
+  .fav-toast {
+    position: fixed;
+    bottom: 82px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 54px;
+    max-width: min(520px, calc(100vw - 32px));
+    background: rgba(38, 38, 44, 0.96);
+    color: white;
+    padding: 0 18px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 750;
+    box-shadow: 0 18px 40px rgba(16, 16, 20, 0.22);
+    z-index: 2000;
+    animation: fav-toast-slide 0.3s cubic-bezier(0.2, 1.2, 0.4, 1);
+  }
+  .fav-toast-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    color: #2d2d34;
+    flex: 0 0 auto;
+  }
+  .fav-toast-icon .ui-icon {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.4;
+  }
+  .fav-toast-text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .fav-toast-arrow {
+    width: 18px;
+    height: 18px;
+    color: rgba(255, 255, 255, 0.88);
+    flex: 0 0 auto;
+  }
+  @keyframes fav-toast-slide {
+    from { transform: translate(-50%, 16px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+  }
+  .fav-toast.fade-out {
+    transition: opacity 0.3s, transform 0.3s;
+    opacity: 0;
+    transform: translate(-50%, -8px);
+  }
+  
+  @media (max-width: 600px) {
+    .news-actions .news-fav-btn,
+    .news-actions .news-tts-btn { width: 34px; height: 34px; }
+    .news-actions .news-fav-btn .fav-star,
+    .news-actions .news-tts-btn .tts-btn-icon { width: 17px; height: 17px; }
+    .fav-page { padding: 4px 0 0; }
+    .fav-page-header { gap: 12px; }
+    .fav-page-actions { width: auto; margin-left: auto; }
+    .fav-backup-actions { width: 100%; margin-left: 0; }
+    .fav-backup-content { padding: 12px; border-radius: 18px; }
+    .fav-action-btn { min-width: 0; height: 38px; padding: 0 11px; font-size: 12px; }
+    .fav-folder-header { border-radius: 18px; padding: 12px; }
+    .fav-item-actions { justify-content: flex-start; }
+    .fav-item { padding: 14px; }
+  }
+
+  @media (max-width: 430px) {
+    .highlight-rank,
+    .news-rank {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -2294,7 +3522,7 @@
   <div class="header-inner">
     <div class="header-top">
       <div class="brand-block">
-        <h1 class="title">每日新闻联播速递</h1>
+        <h1 class="title">每日新闻速递</h1>
         <div class="header-meta">
           <span class="date" id="dateDisplay">加载中…</span>
         </div>
@@ -2307,11 +3535,16 @@
       <div class="tabs" id="tabs">
         <button class="tab-btn active" data-tab="content">今日内容</button>
         <button class="tab-btn" data-tab="trend">议题趋势</button>
+        <button class="tab-btn" data-tab="favorites">我的收藏</button>
       </div>
 
       <!-- 日期切换条 -->
       <div class="date-nav" id="dateNav" style="display:none;">
-        <button class="date-arrow" id="prevDay" title="前一天" aria-label="前一天">‹</button>
+        <button class="date-arrow" id="prevDay" title="前一天" aria-label="前一天">
+          <svg class="ui-icon" data-icon="chevronLeft" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6"></path>
+          </svg>
+        </button>
         <div class="date-picker-wrap">
           <button class="date-current" id="datePicker" aria-expanded="false" aria-controls="calendarPopover">
             <span id="datePickerText">选择日期</span>
@@ -2319,9 +3552,17 @@
           </button>
           <div class="calendar-popover" id="calendarPopover" hidden>
             <div class="calendar-head">
-              <button class="calendar-month-btn" id="calendarPrevMonth" type="button" aria-label="上个月">‹</button>
+              <button class="calendar-month-btn" id="calendarPrevMonth" type="button" aria-label="上个月">
+                <svg class="ui-icon" data-icon="chevronLeft" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6"></path>
+                </svg>
+              </button>
               <div class="calendar-month-title" id="calendarMonthTitle">加载中</div>
-              <button class="calendar-month-btn" id="calendarNextMonth" type="button" aria-label="下个月">›</button>
+              <button class="calendar-month-btn" id="calendarNextMonth" type="button" aria-label="下个月">
+                <svg class="ui-icon" data-icon="chevronRight" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M9 6l6 6-6 6"></path>
+                </svg>
+              </button>
             </div>
             <div class="calendar-weekdays">
               <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span>
@@ -2329,7 +3570,11 @@
             <div class="calendar-grid" id="calendarGrid"></div>
           </div>
         </div>
-        <button class="date-arrow" id="nextDay" title="后一天" aria-label="后一天">›</button>
+        <button class="date-arrow" id="nextDay" title="后一天" aria-label="后一天">
+          <svg class="ui-icon" data-icon="chevronRight" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 6l6 6-6 6"></path>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
@@ -2401,6 +3646,62 @@
       暂无趋势数据。等数据积累或在管理员模式下补档后查看。
     </div>
   </div>
+
+  <!-- Tab Panel 3：我的收藏 -->
+  <div class="tab-panel" id="panel-favorites">
+    <div class="fav-page">
+      <div class="fav-page-header">
+        <div>
+          <div class="fav-page-title" id="favPageTitle">我的收藏</div>
+          <div class="fav-page-sub" id="favPageSub">还没有收藏任何新闻</div>
+        </div>
+        <details class="fav-backup-panel">
+        <summary>
+          <span>管理</span>
+          <svg class="ui-icon fav-backup-chevron" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M6 9l6 6 6-6"></path>
+          </svg>
+        </summary>
+        <div class="fav-backup-content">
+        <div class="fav-page-actions fav-backup-actions">
+          <button class="fav-action-btn" id="favExportBtn" type="button" title="导出为 JSON 备份" aria-label="导出为 JSON 备份">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4v10"></path>
+              <path d="M8 8l4-4 4 4"></path>
+              <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+            </svg>
+            <span>导出</span>
+          </button>
+          <button class="fav-action-btn" id="favImportBtn" type="button" title="导入之前的备份" aria-label="导入之前的备份">
+            <svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4v10"></path>
+              <path d="M8 10l4 4 4-4"></path>
+              <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"></path>
+            </svg>
+            <span>导入</span>
+          </button>
+          <input type="file" id="favImportInput" accept=".json,application/json" hidden>
+        </div>
+          <div class="fav-storage-hint">
+            <span class="fav-storage-icon" aria-hidden="true">
+              <svg class="ui-icon" viewBox="0 0 24 24">
+                <path d="M12 3a7 7 0 0 0-4 12.7V18h8v-2.3A7 7 0 0 0 12 3z"></path>
+                <path d="M9.5 21h5"></path>
+                <path d="M10 18h4"></path>
+              </svg>
+            </span>
+            <span>收藏数据仅保存在本设备浏览器中。清缓存、换设备或换浏览器会丢失，建议定期点「导出」存到云盘备份。换设备 / 换浏览器时，在新设备上点「导入」选择之前导出的 JSON 文件即可恢复。</span>
+          </div>
+        </div>
+      </details>
+      </div>
+      <div id="favList"></div>
+      <div id="favEmpty" class="fav-empty" hidden>
+        <p>还没有收藏任何新闻。</p>
+        <p>在「今日内容」页里点新闻标题旁的星星即可收藏。</p>
+      </div>
+    </div>
+  </div>
 </main>
 
 <footer class="site-footer">
@@ -2426,7 +3727,7 @@ const AI_WORKER_URL = 'https://api.juzhangdaxuexi.com';
 const URL_PARAMS = new URLSearchParams(location.search);
 const IS_PREVIEW_MODE = URL_PARAMS.has('preview');
 const CATEGORY_COLORS = {
-  '政治与外交': '#c0392b',
+  '政治与外交': '#a70708',
   '经济与产业': '#2980b9',
   '科技与生态': '#16a085',
   '农业与民生': '#e67e22',
@@ -2436,6 +3737,53 @@ const CATEGORY_COLORS = {
 };
 const CATEGORY_ORDER = ['政治与外交', '经济与产业', '科技与生态', '农业与民生', '文化与教育', '国际与军事'];
 const EARLIEST_NEWS_DATE = '20260504';
+const UI_ICON_PATHS = {
+  plus: '<path d="M12 5v14"></path><path d="M5 12h14"></path>',
+  check: '<path d="M20 6L9 17l-5-5"></path>',
+  x: '<path d="M18 6L6 18"></path><path d="M6 6l12 12"></path>',
+  folder: '<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2.2h7.5A2.5 2.5 0 0 1 21 9.7v6.8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 16.5z"></path>',
+  copy: '<rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"></path>',
+  edit: '<path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path>',
+  trash: '<path d="M4 7h16"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M6 7l1 14h10l1-14"></path><path d="M9 7V4h6v3"></path>',
+  star: '<path d="M12 3.5l2.56 5.2 5.74.84-4.15 4.04.98 5.72L12 16.6l-5.13 2.7.98-5.72L3.7 9.54l5.74-.84L12 3.5z"></path>',
+  note: '<path d="M5 4h10l4 4v12H5z"></path><path d="M15 4v5h5"></path><path d="M8 13h8"></path><path d="M8 17h5"></path>',
+  remove: '<path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H9l2 2.2h7.5A2.5 2.5 0 0 1 21 9.7v6.8a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 16.5z"></path><path d="M8 13h8"></path>',
+  chevronDown: '<path d="M6 9l6 6 6-6"></path>',
+  chevronLeft: '<path d="M15 18l-6-6 6-6"></path>',
+  chevronRight: '<path d="M9 6l6 6-6 6"></path>'
+};
+
+function uiIcon(name, extraClass = '') {
+  return `<svg class="ui-icon${extraClass ? ` ${extraClass}` : ''}" data-icon="${escapeHtml(name)}" viewBox="0 0 24 24" aria-hidden="true">${UI_ICON_PATHS[name] || ''}</svg>`;
+}
+
+function favoriteStarIcon() {
+  return `<svg class="fav-star" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3.5l2.56 5.2 5.74.84-4.15 4.04.98 5.72L12 16.6l-5.13 2.7.98-5.72L3.7 9.54l5.74-.84L12 3.5z"></path>
+          </svg>`;
+}
+
+function ttsButtonIcon() {
+  return `<span class="tts-btn-icon" aria-hidden="true">
+            <svg class="tts-state-icon tts-state-speaker" viewBox="0 0 24 24">
+              <path d="M4 9.5v5h3.2L12 18V6L7.2 9.5H4z"></path>
+              <path d="M16 9a4.5 4.5 0 0 1 0 6"></path>
+              <path d="M18.5 6.5a8.5 8.5 0 0 1 0 11"></path>
+            </svg>
+            <svg class="tts-state-icon tts-state-loader" viewBox="0 0 24 24">
+              <circle cx="6.5" cy="12" r="1.6"></circle>
+              <circle cx="12" cy="12" r="1.6"></circle>
+              <circle cx="17.5" cy="12" r="1.6"></circle>
+            </svg>
+            <svg class="tts-state-icon tts-state-pause" viewBox="0 0 24 24">
+              <path d="M9 6v12"></path>
+              <path d="M15 6v12"></path>
+            </svg>
+            <svg class="tts-state-icon tts-state-play" viewBox="0 0 24 24">
+              <path d="M8 5l10 7-10 7V5z"></path>
+            </svg>
+          </span>`;
+}
 // ====================
 
 // 全局状态
@@ -2456,6 +3804,14 @@ let ttsRate = parseFloat(localStorage.getItem('tts-rate') || '1');
 let ttsVoice = localStorage.getItem('tts-voice') || 'zh-CN-YunyangNeural';
 let ttsAbortCtrl = null;     // AbortController 用于取消正在 fetch 的请求
 let ttsProgressRaf = null;   // 朗读进度动画帧
+
+// 收藏夹（localStorage 存储 v2 版：支持多收藏夹）
+const FAV_STORAGE_KEY = 'xwlb-favorites-v2';
+const FAV_LEGACY_KEY = 'xwlb-favorites-v1';   // 旧版本数据，启动时迁移
+const FAV_LOOSE_FOLDER_ID = '__loose__';
+const FAV_LOOSE_FOLDER_NAME = '默认收藏';
+let favoritesData = null;                      // 懒加载：{ folders: [], items: Map<id, item> }
+let currentFavoriteFolderId = null;
 
 function bjDateStr(offset = 0) {
   const now = new Date(Date.now() + offset * 86400000);
@@ -2773,7 +4129,15 @@ function renderContent(newsData, aiData) {
       const preview = oneLine || paragraphs[0] || '暂无摘要';
       
       // 记录原文段落（朗读用，避免被 HTML 高亮污染）
-      newsTextMap.set(id, { title: item.title, paragraphs, rank: globalRank });
+      newsTextMap.set(id, { 
+        title: item.title, 
+        paragraphs, 
+        rank: globalRank,
+        topics,
+        category,
+        oneLine,
+        dateStr: currentDateStr
+      });
       
       html += `<article class="news-item" id="${id}">`;
       html += `<div class="news-rank">${globalRank}</div>`;
@@ -2800,7 +4164,7 @@ function renderContent(newsData, aiData) {
       // 朗读控制条 —— 默认隐藏，点朗读按钮后显示
       html += `<div class="tts-bar" data-tts-bar="${id}">
         <button class="news-tts-btn tts-bar-play" type="button" data-tts-target="${id}" data-tts-state="idle" aria-label="朗读这条新闻">
-          <span class="tts-btn-icon" aria-hidden="true"></span>
+          ${ttsButtonIcon()}
         </button>
         <div class="tts-main">
           <div class="tts-status">
@@ -2821,12 +4185,16 @@ function renderContent(newsData, aiData) {
       </div>`;
       html += '</div>'; // news-body
       html += '</div>'; // news-main
-      // 右上角按钮组：朗读 + 展开
+      // 右上角按钮组：收藏 + 朗读 + 展开
+      const isFav = isFavorited(id);
       html += `<div class="news-actions">
-        <button class="news-tts-btn" type="button" data-tts-target="${id}" data-tts-state="idle" aria-label="朗读这条新闻">
-          <span class="tts-btn-icon" aria-hidden="true"></span>
+        <button class="news-fav-btn ${isFav ? 'favorited' : ''}" type="button" data-fav-target="${id}" aria-label="${isFav ? '取消收藏' : '收藏这条新闻'}" title="${isFav ? '取消收藏' : '收藏这条新闻'}">
+          ${favoriteStarIcon()}
         </button>
-        <button class="news-toggle" type="button" data-target="${id}" aria-expanded="false" aria-label="展开全文">⌄</button>
+        <button class="news-tts-btn" type="button" data-tts-target="${id}" data-tts-state="idle" aria-label="朗读这条新闻">
+          ${ttsButtonIcon()}
+        </button>
+        <button class="news-toggle" type="button" data-target="${id}" aria-expanded="false" aria-label="展开全文">${uiIcon('chevronDown')}</button>
       </div>`;
       html += '</article>';
     }
@@ -2836,6 +4204,7 @@ function renderContent(newsData, aiData) {
   area.innerHTML = html;
   setupContentInteractions();
   setupTTS();
+  updateFavCountBadge();
   document.getElementById('gate').style.display = 'block';
 }
 
@@ -2854,6 +4223,964 @@ function setupContentInteractions() {
       btn.setAttribute('aria-label', expanded ? '收起全文' : '展开全文');
       onScroll();
     });
+  });
+  // 收藏按钮
+  area.querySelectorAll('.news-fav-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.favTarget;
+      if (isFavorited(id)) {
+        removeFavorite(id);
+        btn.classList.remove('favorited');
+        btn.setAttribute('aria-label', '收藏这条新闻');
+        btn.setAttribute('title', '收藏这条新闻');
+        showFavToast('已取消收藏');
+        if (document.getElementById('panel-favorites')?.classList.contains('active')) {
+          renderFavoritesPage();
+        }
+        return;
+      }
+
+      // 未收藏时弹框，让用户选择加入哪个收藏夹；不勾选则保存为默认收藏
+      openFavModal(id, (folderIds, note) => {
+        // 先把这条从所有旧夹里清掉，再加到新选的夹里（让用户能"减夹"）
+        const existing = loadFavorites().items.get(id);
+        if (existing) {
+          existing.folderIds = []; // 重置
+        }
+        addFavorite(id, folderIds, note);
+        btn.classList.add('favorited');
+        btn.classList.add('just-favorited');
+        setTimeout(() => btn.classList.remove('just-favorited'), 500);
+        btn.setAttribute('aria-label', '取消收藏');
+        btn.setAttribute('title', '取消收藏');
+        showFavToast(getFavoriteJoinedToastText(folderIds), { icon: 'check', arrow: true });
+        // 同步收藏夹页
+        if (document.getElementById('panel-favorites')?.classList.contains('active')) {
+          renderFavoritesPage();
+        }
+      });
+    });
+  });
+}
+
+// ========== 收藏夹模块（localStorage v2，支持多收藏夹）==========
+function loadFavorites() {
+  if (favoritesData) return favoritesData;
+  favoritesData = { folders: [], items: new Map() };
+  try {
+    const raw = localStorage.getItem(FAV_STORAGE_KEY);
+    if (raw) {
+      const obj = JSON.parse(raw);
+      if (obj && Array.isArray(obj.folders) && Array.isArray(obj.items)) {
+        favoritesData.folders = obj.folders;
+        for (const it of obj.items) {
+          if (it && it.id) {
+            // 兼容：确保 folderIds 是数组
+            if (!Array.isArray(it.folderIds)) it.folderIds = [];
+            favoritesData.items.set(it.id, it);
+          }
+        }
+      }
+    } else {
+      // 检查并迁移 v1 旧数据
+      const legacy = localStorage.getItem(FAV_LEGACY_KEY);
+      if (legacy) {
+        try {
+          const old = JSON.parse(legacy);
+          if (Array.isArray(old) && old.length > 0) {
+            // 自动建一个迁移夹
+            const migId = 'fld_migrated_' + Date.now();
+            favoritesData.folders.push({
+              id: migId,
+              name: '从旧版迁移',
+              createdAt: Date.now()
+            });
+            for (const it of old) {
+              if (it && it.id) {
+                it.folderIds = [migId];
+                favoritesData.items.set(it.id, it);
+              }
+            }
+            // 保存 v2 + 删 v1
+            saveFavorites();
+            localStorage.removeItem(FAV_LEGACY_KEY);
+          }
+        } catch (e) {
+          console.warn('v1 迁移失败', e);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('收藏夹解析失败', e);
+  }
+  return favoritesData;
+}
+
+function saveFavorites() {
+  if (!favoritesData) return;
+  try {
+    const obj = {
+      folders: favoritesData.folders,
+      items: Array.from(favoritesData.items.values())
+    };
+    localStorage.setItem(FAV_STORAGE_KEY, JSON.stringify(obj));
+  } catch (e) {
+    console.warn('收藏夹保存失败', e);
+    alert('保存失败：可能浏览器存储空间不足或处于隐私模式。');
+  }
+  updateFavCountBadge();
+}
+
+// 一条新闻是否在任何收藏夹里
+function isFavorited(id) {
+  const item = loadFavorites().items.get(id);
+  return !!item;
+}
+
+// 收藏一条新闻到指定收藏夹（folderIds 数组）
+function addFavorite(id, folderIds, note) {
+  if (!Array.isArray(folderIds)) return;
+  const data = newsTextMap.get(id);
+  if (!data) return;
+  const existing = loadFavorites().items.get(id);
+  if (existing) {
+    // 已存在 → 追加新夹（不重复）+ 更新备注
+    const merged = new Set(existing.folderIds || []);
+    for (const fid of folderIds) merged.add(fid);
+    existing.folderIds = Array.from(merged);
+    if (note !== undefined && note !== null) {
+      existing.note = (note || '').trim();
+    }
+  } else {
+    loadFavorites().items.set(id, {
+      id,
+      title: data.title,
+      paragraphs: data.paragraphs,
+      topics: data.topics || [],
+      category: data.category || '',
+      oneLine: data.oneLine || '',
+      dateStr: data.dateStr || currentDateStr,
+      note: (note || '').trim(),
+      addedAt: Date.now(),
+      folderIds: folderIds.slice()
+    });
+  }
+  saveFavorites();
+}
+
+function getFavoriteJoinedToastText(folderIds) {
+  const folders = loadFavorites().folders || [];
+  const names = (folderIds || [])
+    .map(fid => folders.find(f => f.id === fid)?.name)
+    .filter(Boolean);
+  if (!names.length) return `已加入「${FAV_LOOSE_FOLDER_NAME}」`;
+  if (names.length === 1) return `已加入「${names[0]}」`;
+  return `已加入「${names[0]}」等 ${names.length} 个夹`;
+}
+
+// 把一条新闻从一个夹里移除；如果没有其他自定义夹承接，就直接取消收藏
+function removeFromFolder(id, folderId) {
+  const item = loadFavorites().items.get(id);
+  if (!item) return 'missing';
+  if (folderId === FAV_LOOSE_FOLDER_ID) {
+    loadFavorites().items.delete(id);
+    saveFavorites();
+    return 'deleted';
+  }
+  item.folderIds = (item.folderIds || []).filter(f => f !== folderId);
+  if (!item.folderIds.length) {
+    loadFavorites().items.delete(id);
+    saveFavorites();
+    return 'deleted';
+  }
+  saveFavorites();
+  return 'removed';
+}
+
+// 完全取消收藏（从所有夹移除）
+function removeFavorite(id) {
+  loadFavorites().items.delete(id);
+  saveFavorites();
+}
+
+// 新建收藏夹
+function createFolder(name) {
+  const fav = loadFavorites();
+  const id = 'fld_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+  fav.folders.push({
+    id,
+    name: (name || '').trim() || '未命名收藏夹',
+    createdAt: Date.now()
+  });
+  saveFavorites();
+  return id;
+}
+
+function openFolderNameDialog(options, onConfirm) {
+  const title = options?.title || '收藏夹';
+  const placeholder = options?.placeholder || '收藏夹名字';
+  const confirmText = options?.confirmText || '确认';
+  const initialValue = options?.initialValue || '';
+  const overlay = document.createElement('div');
+  overlay.className = 'fav-note-modal fav-folder-dialog';
+  overlay.innerHTML = `
+    <div class="fav-note-box" role="dialog" aria-modal="true" aria-label="${escapeHtml(title)}">
+      <h3>${escapeHtml(title)}</h3>
+      <input class="fav-folder-dialog-input" type="text" maxlength="40" placeholder="${escapeHtml(placeholder)}" value="${escapeHtml(initialValue)}">
+      <div class="fav-note-actions">
+        <button type="button" class="fav-note-btn cancel icon-only" title="取消" aria-label="取消">${uiIcon('x')}</button>
+        <button type="button" class="fav-note-btn confirm icon-only" title="${escapeHtml(confirmText)}" aria-label="${escapeHtml(confirmText)}">${uiIcon('check')}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  const input = overlay.querySelector('.fav-folder-dialog-input');
+  const close = () => overlay.remove();
+  const submit = () => {
+    const name = input.value.trim();
+    if (!name) { input.focus(); return; }
+    onConfirm?.(name);
+    close();
+  };
+  overlay.querySelector('.fav-note-btn.cancel').addEventListener('click', close);
+  overlay.querySelector('.fav-note-btn.confirm').addEventListener('click', submit);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); submit(); }
+    if (e.key === 'Escape') close();
+  });
+  setTimeout(() => {
+    input.focus();
+    input.select();
+  }, 0);
+}
+
+// 重命名收藏夹
+function renameFolder(folderId, newName) {
+  const fav = loadFavorites();
+  const f = fav.folders.find(x => x.id === folderId);
+  if (f) {
+    f.name = (newName || '').trim() || '未命名收藏夹';
+    saveFavorites();
+  }
+}
+
+// 删除整个收藏夹；夹里的新闻如果不在别的夹里，会被一起取消收藏
+function deleteFolder(folderId) {
+  const fav = loadFavorites();
+  fav.folders = fav.folders.filter(f => f.id !== folderId);
+  for (const [id, item] of fav.items) {
+    item.folderIds = (item.folderIds || []).filter(f => f !== folderId);
+    if (!item.folderIds.length) {
+      fav.items.delete(id);
+    }
+  }
+  saveFavorites();
+}
+
+// Badge 显示总收藏数（去重的新闻总数）
+function updateFavCountBadge() {
+  const badge = document.getElementById('favCountBadge');
+  if (!badge) return;
+  const n = loadFavorites().items.size;
+  if (n > 0) {
+    badge.textContent = n;
+    badge.hidden = false;
+  } else {
+    badge.hidden = true;
+  }
+}
+
+// 收藏弹框（多收藏夹版）
+function openFavModal(id, onConfirm) {
+  const data = newsTextMap.get(id);
+  if (!data) return;
+  const fav = loadFavorites();
+  
+  // 如果这条已经在某些夹里，预选
+  const existing = fav.items.get(id);
+  const preSelected = new Set(existing && existing.folderIds ? existing.folderIds : []);
+  
+  const overlay = document.createElement('div');
+  overlay.className = 'fav-note-modal';
+  overlay.innerHTML = `
+    <div class="fav-note-box" role="dialog" aria-modal="true">
+      <h3>${existing ? '编辑收藏' : '添加到收藏夹'}</h3>
+      <div class="fav-folder-section">
+        <div class="fav-folder-label">选择收藏夹（可多选）</div>
+        <div class="fav-folder-checkboxes" id="favFolderChecks"></div>
+        <div class="fav-new-folder-row" id="favNewFolderRow">
+          <button type="button" class="fav-new-folder-btn" id="favNewFolderBtn">${uiIcon('plus')}<span>新建收藏夹</span></button>
+          <div class="fav-new-folder-input" id="favNewFolderInput" hidden>
+            <input type="text" placeholder="收藏夹名字，比如『新型储能 - 基金本子』" maxlength="40">
+            <button type="button" class="fav-new-folder-confirm icon-only" title="建好" aria-label="建好">${uiIcon('check')}</button>
+            <button type="button" class="fav-new-folder-cancel icon-only" title="取消" aria-label="取消">${uiIcon('x')}</button>
+          </div>
+        </div>
+      </div>
+      <label class="fav-note-label">备注（可选）</label>
+      <textarea id="favNoteInput" placeholder="比如：『XX 基金引用』、『储能政策证据』…">${escapeHtml(existing ? (existing.note || '') : '')}</textarea>
+      <p class="note-hint">备注和收藏夹都仅保存在你自己的浏览器里。</p>
+      <div class="fav-note-actions">
+        <button type="button" class="fav-note-btn cancel icon-only" title="取消" aria-label="取消">${uiIcon('x')}</button>
+        <button type="button" class="fav-note-btn confirm icon-only" id="favConfirmBtn" title="确认收藏" aria-label="确认收藏">${uiIcon('check')}</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  function renderFolderChecks() {
+    const fav = loadFavorites();
+    const wrap = overlay.querySelector('#favFolderChecks');
+    if (!fav.folders.length) {
+      wrap.innerHTML = '<div class="fav-folder-empty">还没有收藏夹，请点下方「新建收藏夹」</div>';
+    } else {
+      wrap.innerHTML = fav.folders.map(f => `
+        <label class="fav-folder-check">
+          <input type="checkbox" value="${escapeHtml(f.id)}" ${preSelected.has(f.id) ? 'checked' : ''}>
+          <span>${escapeHtml(f.name)}</span>
+        </label>
+      `).join('');
+    }
+    updateConfirmBtn();
+  }
+  
+  function updateConfirmBtn() {
+    const confirmBtn = overlay.querySelector('#favConfirmBtn');
+    confirmBtn.disabled = false;
+    confirmBtn.innerHTML = uiIcon('check');
+  }
+  
+  renderFolderChecks();
+  
+  // 新建收藏夹
+  const newBtn = overlay.querySelector('#favNewFolderBtn');
+  const newInputWrap = overlay.querySelector('#favNewFolderInput');
+  const newInputEl = newInputWrap.querySelector('input');
+  newBtn.addEventListener('click', () => {
+    newBtn.hidden = true;
+    newInputWrap.hidden = false;
+    newInputEl.focus();
+  });
+  newInputWrap.querySelector('.fav-new-folder-cancel').addEventListener('click', () => {
+    newInputWrap.hidden = true;
+    newBtn.hidden = false;
+    newInputEl.value = '';
+  });
+  function doCreateFolder() {
+    const name = newInputEl.value.trim();
+    if (!name) {
+      newInputEl.focus();
+      return;
+    }
+    const fid = createFolder(name);
+    preSelected.add(fid); // 新建的自动勾选
+    renderFolderChecks();
+    newInputWrap.hidden = true;
+    newBtn.hidden = false;
+    newInputEl.value = '';
+  }
+  newInputWrap.querySelector('.fav-new-folder-confirm').addEventListener('click', doCreateFolder);
+  newInputEl.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); doCreateFolder(); }
+    if (e.key === 'Escape') { newInputWrap.hidden = true; newBtn.hidden = false; }
+  });
+  
+  // 监听 checkbox 变化
+  overlay.addEventListener('change', updateConfirmBtn);
+  
+  const noteInput = overlay.querySelector('#favNoteInput');
+  const cancelBtn = overlay.querySelector('.cancel');
+  const confirmBtn = overlay.querySelector('#favConfirmBtn');
+  
+  function close() {
+    document.removeEventListener('keydown', escHandler);
+    overlay.remove();
+  }
+  function escHandler(e) {
+    if (e.key === 'Escape' && !newInputWrap.contains(document.activeElement)) close();
+  }
+  document.addEventListener('keydown', escHandler);
+  
+  cancelBtn.addEventListener('click', close);
+  confirmBtn.addEventListener('click', () => {
+    const selected = Array.from(overlay.querySelectorAll('#favFolderChecks input:checked')).map(c => c.value);
+    onConfirm(selected, noteInput.value);
+    close();
+  });
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) close();
+  });
+}
+
+// 轻提示
+function showFavToast(msg, options = {}) {
+  const old = document.querySelector('.fav-toast');
+  if (old) old.remove();
+  const toast = document.createElement('div');
+  toast.className = 'fav-toast';
+  if (options.icon || options.arrow) {
+    toast.innerHTML = `
+      ${options.icon === 'check' ? `<span class="fav-toast-icon">${uiIcon('check')}</span>` : ''}
+      <span class="fav-toast-text">${escapeHtml(msg)}</span>
+      ${options.arrow ? uiIcon('chevronRight', 'fav-toast-arrow') : ''}
+    `;
+  } else {
+    toast.textContent = msg;
+  }
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add('fade-out');
+    setTimeout(() => toast.remove(), 300);
+  }, 1800);
+}
+
+function getFolderItems(folderId) {
+  if (folderId === FAV_LOOSE_FOLDER_ID) {
+    return Array.from(loadFavorites().items.values())
+      .filter(it => !(it.folderIds || []).length)
+      .sort((a, b) => (b.dateStr || '').localeCompare(a.dateStr || ''));
+  }
+  return Array.from(loadFavorites().items.values())
+    .filter(it => (it.folderIds || []).includes(folderId))
+    .sort((a, b) => (b.dateStr || '').localeCompare(a.dateStr || ''));
+}
+
+function renderFavoriteItemCard(fav, folderId, folders) {
+  const otherFolders = (fav.folderIds || []).filter(f => f !== folderId);
+  const otherNames = otherFolders.map(fid => folders.find(f => f.id === fid)?.name).filter(Boolean);
+  const paragraphs = Array.isArray(fav.paragraphs) ? fav.paragraphs.filter(Boolean) : [];
+  const hasBody = paragraphs.length > 0;
+  const summary = fav.oneLine || (hasBody ? paragraphs[0] : '');
+  return `<div class="fav-item" data-fav-id="${escapeHtml(fav.id)}">
+    <div class="fav-item-head">
+      <div class="fav-item-title">${escapeHtml(fav.title)}</div>
+      <div class="fav-item-date">${formatFavDate(fav.dateStr)}</div>
+    </div>
+    ${(fav.topics && fav.topics.length) ? `<div class="fav-item-meta">
+      ${fav.topics.map(t => `<span class="fav-item-tag">#${escapeHtml(t)}</span>`).join('')}
+    </div>` : ''}
+    ${summary ? `<p class="fav-item-summary${hasBody ? ' is-clickable' : ''}" ${hasBody ? `data-fav-toggle="${escapeHtml(fav.id)}" role="button" tabindex="0" aria-expanded="false" aria-label="展开正文" title="展开正文"` : ''}>${escapeHtml(summary)}</p>` : ''}
+    ${hasBody ? `<div class="fav-item-body" hidden>
+      ${paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}
+    </div>` : ''}
+    ${fav.note ? `<div class="fav-item-note">
+      <span class="fav-note-label">备注</span>${escapeHtml(fav.note)}
+    </div>` : ''}
+    ${otherNames.length ? `<div class="fav-item-other-folders">同时在：${otherNames.map(n => `<span class="fav-other-folder-pill">${escapeHtml(n)}</span>`).join('')}</div>` : ''}
+    <div class="fav-item-actions">
+      <button class="fav-icon-btn" data-fav-copy="${escapeHtml(fav.id)}" title="复制原文" aria-label="复制原文">${uiIcon('copy')}</button>
+      <button class="fav-icon-btn" data-fav-edit-note="${escapeHtml(fav.id)}" title="${fav.note ? '编辑备注' : '加备注'}" aria-label="${fav.note ? '编辑备注' : '加备注'}">${uiIcon('note')}</button>
+      <button class="fav-icon-btn star" data-fav-unstar="${escapeHtml(fav.id)}" data-fav-folder-unstar="${escapeHtml(folderId)}" title="取消收藏" aria-label="取消收藏">${uiIcon('star')}</button>
+    </div>
+  </div>`;
+}
+
+// 渲染收藏夹页面
+function renderFavoritesPage() {
+  const fav = loadFavorites();
+  const folders = fav.folders;
+  const items = fav.items;
+  const listEl = document.getElementById('favList');
+  const emptyEl = document.getElementById('favEmpty');
+  const titleEl = document.getElementById('favPageTitle');
+  const subEl = document.getElementById('favPageSub');
+  const backupPanel = document.querySelector('.fav-backup-panel');
+  
+  if (
+    currentFavoriteFolderId &&
+    currentFavoriteFolderId !== FAV_LOOSE_FOLDER_ID &&
+    !folders.some(f => f.id === currentFavoriteFolderId)
+  ) {
+    currentFavoriteFolderId = null;
+  }
+  
+  // 没有任何收藏夹 = 完全空状态
+  if (!folders.length && !items.size) {
+    currentFavoriteFolderId = null;
+    listEl.innerHTML = '';
+    emptyEl.hidden = false;
+    if (backupPanel) backupPanel.hidden = false;
+    titleEl.textContent = '我的收藏';
+    subEl.textContent = '还没有收藏任何新闻';
+    return;
+  }
+  
+  emptyEl.hidden = true;
+  
+  const looseItems = getFolderItems(FAV_LOOSE_FOLDER_ID);
+  const activeFolder = currentFavoriteFolderId === FAV_LOOSE_FOLDER_ID
+    ? { id: FAV_LOOSE_FOLDER_ID, name: FAV_LOOSE_FOLDER_NAME, isLoose: true }
+    : (currentFavoriteFolderId ? folders.find(f => f.id === currentFavoriteFolderId) : null);
+  
+  if (activeFolder) {
+    if (backupPanel) backupPanel.hidden = true;
+    const folderItems = getFolderItems(activeFolder.id);
+    titleEl.innerHTML = `<div class="fav-page-title-row">
+      <div class="fav-page-title-top">
+        <button class="fav-title-back" id="favFolderBackBtn" type="button" title="返回" aria-label="返回">${uiIcon('chevronLeft')}</button>
+        <span class="fav-page-title-actions">
+          <button class="fav-icon-btn" data-folder-copy-all="${escapeHtml(activeFolder.id)}" title="复制整夹" aria-label="复制整夹">${uiIcon('copy')}</button>
+          ${activeFolder.isLoose ? '' : `<button class="fav-icon-btn" data-folder-rename-btn="${escapeHtml(activeFolder.id)}" title="重命名收藏夹" aria-label="重命名收藏夹">${uiIcon('edit')}</button>
+          <button class="fav-icon-btn danger" data-folder-delete="${escapeHtml(activeFolder.id)}" title="删除收藏夹" aria-label="删除收藏夹">${uiIcon('trash')}</button>`}
+        </span>
+      </div>
+      <div class="fav-page-title-main">
+        <span class="fav-page-title-name">${escapeHtml(activeFolder.name)}</span>
+        <span class="fav-page-title-count">${folderItems.length} 条收藏</span>
+      </div>
+    </div>`;
+    subEl.textContent = '';
+    let html = '';
+    
+    if (!folderItems.length) {
+      html += `<div class="fav-folder-empty-tip">这个收藏夹还没有新闻</div>`;
+    } else {
+      html += folderItems.map(item => renderFavoriteItemCard(item, activeFolder.id, folders)).join('');
+    }
+    
+    listEl.innerHTML = html;
+    bindFavoritesPageEvents(document.getElementById('panel-favorites'));
+    return;
+  }
+  
+  if (backupPanel) backupPanel.hidden = false;
+  titleEl.textContent = '我的收藏';
+  
+  let html = `
+    <div class="fav-folder-toolbar">
+      <button class="fav-new-folder-toolbar-btn" id="favNewFolderTopBtn">${uiIcon('plus')}<span>新建收藏夹</span>${uiIcon('chevronRight')}</button>
+    </div>
+  `;
+  
+  if (looseItems.length) {
+    html += `<div class="fav-folder-block" data-folder-id="${FAV_LOOSE_FOLDER_ID}">
+      <div class="fav-folder-header" data-folder-open="${FAV_LOOSE_FOLDER_ID}" role="button" tabindex="0" aria-label="打开${FAV_LOOSE_FOLDER_NAME}">
+        <div class="fav-folder-name">
+          ${uiIcon('folder')}<span>${FAV_LOOSE_FOLDER_NAME}</span>
+          <span class="fav-folder-item-count">${looseItems.length} 条</span>
+        </div>
+        <div class="fav-folder-actions">
+          <button class="fav-icon-btn" data-folder-copy-all="${FAV_LOOSE_FOLDER_ID}" title="复制${FAV_LOOSE_FOLDER_NAME}" aria-label="复制${FAV_LOOSE_FOLDER_NAME}">${uiIcon('copy')}</button>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (!folders.length && !looseItems.length) {
+    html += `<div class="fav-folder-empty-tip">还没有收藏夹</div>`;
+  } else {
+    for (const folder of folders) {
+      const folderItems = getFolderItems(folder.id);
+      html += `<div class="fav-folder-block" data-folder-id="${escapeHtml(folder.id)}">
+        <div class="fav-folder-header" data-folder-open="${escapeHtml(folder.id)}" role="button" tabindex="0" aria-label="打开收藏夹 ${escapeHtml(folder.name)}">
+          <div class="fav-folder-name">
+            ${uiIcon('folder')}<span>${escapeHtml(folder.name)}</span>
+            <span class="fav-folder-item-count">${folderItems.length} 条</span>
+          </div>
+          <div class="fav-folder-actions">
+            <button class="fav-icon-btn" data-folder-copy-all="${escapeHtml(folder.id)}" title="复制整夹" aria-label="复制整夹">${uiIcon('copy')}</button>
+            <button class="fav-icon-btn" data-folder-rename-btn="${escapeHtml(folder.id)}" title="重命名收藏夹" aria-label="重命名收藏夹">${uiIcon('edit')}</button>
+            <button class="fav-icon-btn danger" data-folder-delete="${escapeHtml(folder.id)}" title="删除收藏夹" aria-label="删除收藏夹">${uiIcon('trash')}</button>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+  
+  listEl.innerHTML = html;
+  subEl.textContent = `共 ${items.size} 条收藏 · ${folders.length} 个收藏夹`;
+  
+  bindFavoritesPageEvents(document.getElementById('panel-favorites'));
+}
+
+function bindFavoritesPageEvents(listEl) {
+  // 顶部新建收藏夹
+  const newTopBtn = listEl.querySelector('#favNewFolderTopBtn');
+  if (newTopBtn) {
+    newTopBtn.addEventListener('click', () => {
+      openFolderNameDialog({
+        title: '新建收藏夹',
+        placeholder: '收藏夹名字',
+        confirmText: '新建'
+      }, (name) => {
+        createFolder(name);
+        renderFavoritesPage();
+      });
+    });
+  }
+
+  const backBtn = listEl.querySelector('#favFolderBackBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      currentFavoriteFolderId = null;
+      renderFavoritesPage();
+    });
+  }
+
+  listEl.querySelectorAll('[data-folder-open]').forEach(row => {
+    const openFolder = () => {
+      currentFavoriteFolderId = row.dataset.folderOpen;
+      renderFavoritesPage();
+    };
+    row.addEventListener('click', openFolder);
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openFolder();
+      }
+    });
+  });
+  
+  // 收藏夹重命名
+  listEl.querySelectorAll('[data-folder-rename-btn]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fid = btn.dataset.folderRenameBtn;
+      const fav = loadFavorites();
+      const folder = fav.folders.find(f => f.id === fid);
+      if (!folder) return;
+      const newName = prompt('收藏夹新名字：', folder.name);
+      if (newName === null) return;
+      renameFolder(fid, newName);
+      renderFavoritesPage();
+    });
+  });
+  // 点击夹名字也能重命名
+  listEl.querySelectorAll('[data-folder-rename]').forEach(el => {
+    el.addEventListener('dblclick', () => {
+      const fid = el.dataset.folderRename;
+      const fav = loadFavorites();
+      const folder = fav.folders.find(f => f.id === fid);
+      if (!folder) return;
+      const newName = prompt('收藏夹新名字：', folder.name);
+      if (newName === null) return;
+      renameFolder(fid, newName);
+      renderFavoritesPage();
+    });
+  });
+  
+  // 删除收藏夹
+  listEl.querySelectorAll('[data-folder-delete]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fid = btn.dataset.folderDelete;
+      const fav = loadFavorites();
+      const folder = fav.folders.find(f => f.id === fid);
+      if (!folder) return;
+      const itemsInFolder = Array.from(fav.items.values()).filter(it => (it.folderIds || []).includes(fid));
+      const orphanCount = itemsInFolder.filter(it => (it.folderIds || []).length === 1).length;
+      let msg = `确定删除收藏夹「${folder.name}」吗？\n夹里有 ${itemsInFolder.length} 条新闻。`;
+      if (orphanCount > 0) {
+        msg += `\n\n其中 ${orphanCount} 条新闻只属于这个夹，删除后会一并取消收藏。`;
+      } else {
+        msg += `\n\n所有新闻同时在其他夹里，不会丢失。`;
+      }
+      if (!confirm(msg)) return;
+      deleteFolder(fid);
+      renderFavoritesPage();
+      refreshStarButtonsOnCurrentPage();
+    });
+  });
+  
+  // 复制整夹
+  listEl.querySelectorAll('[data-folder-copy-all]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fid = btn.dataset.folderCopyAll;
+      copyFolderAsCitation(fid);
+    });
+  });
+  
+  // 单条复制原文
+  listEl.querySelectorAll('[data-fav-copy]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.favCopy;
+      copyOneFavorite(id);
+    });
+  });
+
+  // 点击摘要展开 / 收起正文
+  listEl.querySelectorAll('[data-fav-toggle]').forEach(summary => {
+    const toggleBody = () => {
+      const card = summary.closest('.fav-item');
+      if (!card) return;
+      const body = card.querySelector('.fav-item-body');
+      const expanded = !card.classList.contains('expanded');
+      card.classList.toggle('expanded', expanded);
+      if (body) body.hidden = !expanded;
+      summary.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      summary.setAttribute('aria-label', expanded ? '收起正文' : '展开正文');
+      summary.setAttribute('title', expanded ? '收起正文' : '展开正文');
+    };
+    summary.addEventListener('click', toggleBody);
+    summary.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleBody();
+      }
+    });
+  });
+  
+  // 编辑备注
+  listEl.querySelectorAll('[data-fav-edit-note]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.favEditNote;
+      const fav = loadFavorites().items.get(id);
+      if (!fav) return;
+      const newNote = prompt('编辑备注：', fav.note || '');
+      if (newNote === null) return;
+      fav.note = newNote.trim();
+      saveFavorites();
+      renderFavoritesPage();
+    });
+  });
+
+  // 底部星标：从当前收藏夹取消收藏
+  listEl.querySelectorAll('[data-fav-unstar]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.favUnstar;
+      const fid = btn.dataset.favFolderUnstar;
+      const result = removeFromFolder(id, fid);
+      renderFavoritesPage();
+      refreshStarButtonsOnCurrentPage();
+      showFavToast(result === 'removed' ? '已从此收藏夹移除' : '已取消收藏');
+    });
+  });
+  
+  // 从此夹移除
+  listEl.querySelectorAll('[data-fav-from-folder]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const fid = btn.dataset.favFromFolder;
+      const id = btn.dataset.favIdRm;
+      removeFromFolder(id, fid);
+      renderFavoritesPage();
+      refreshStarButtonsOnCurrentPage();
+    });
+  });
+  
+  // 彻底删除
+  listEl.querySelectorAll('[data-fav-remove]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.favRemove;
+      if (!confirm('彻底删除这条收藏（从所有夹移除）？')) return;
+      removeFavorite(id);
+      renderFavoritesPage();
+      refreshStarButtonsOnCurrentPage();
+    });
+  });
+}
+
+function refreshStarButtonsOnCurrentPage() {
+  document.querySelectorAll('.news-fav-btn').forEach(btn => {
+    const id = btn.dataset.favTarget;
+    if (isFavorited(id)) {
+      btn.classList.add('favorited');
+      btn.setAttribute('aria-label', '取消收藏');
+      btn.setAttribute('title', '取消收藏');
+    } else {
+      btn.classList.remove('favorited');
+      btn.setAttribute('aria-label', '收藏这条新闻');
+      btn.setAttribute('title', '收藏这条新闻');
+    }
+  });
+}
+
+// 复制单条新闻的原文
+function copyOneFavorite(id) {
+  const fav = loadFavorites().items.get(id);
+  if (!fav) return;
+  const dt = formatFavDate(fav.dateStr);
+  let txt = `${dt}《新闻联播》\n`;
+  txt += `${fav.title}\n\n`;
+  if (fav.paragraphs && fav.paragraphs.length) {
+    txt += fav.paragraphs.join('\n\n');
+    txt += '\n';
+  }
+  if (fav.note) {
+    txt += `\n备注：${fav.note}\n`;
+  }
+  copyTextToClipboard(txt, '已复制原文');
+}
+
+// 复制整个收藏夹为引用格式
+function copyFolderAsCitation(folderId) {
+  const fav = loadFavorites();
+  const folder = folderId === FAV_LOOSE_FOLDER_ID
+    ? { id: FAV_LOOSE_FOLDER_ID, name: FAV_LOOSE_FOLDER_NAME }
+    : fav.folders.find(f => f.id === folderId);
+  if (!folder) return;
+  const items = getFolderItems(folderId);
+  if (!items.length) {
+    showFavToast('这个夹里还没有新闻');
+    return;
+  }
+  let txt = `收藏夹：${folder.name}\n导出时间：${new Date().toLocaleString('zh-CN')}\n共 ${items.length} 条\n\n`;
+  items.forEach((f, idx) => {
+    const dt = formatFavDate(f.dateStr);
+    txt += `[${idx + 1}] ${dt}《新闻联播》\n`;
+    txt += `   标题：${f.title}\n`;
+    if (f.topics && f.topics.length) txt += `   议题：${f.topics.join('、')}\n`;
+    if (f.oneLine) txt += `   要点：${f.oneLine}\n`;
+    if (f.paragraphs && f.paragraphs.length) {
+      txt += `   原文：${f.paragraphs.join(' ')}\n`;
+    }
+    if (f.note) txt += `   备注：${f.note}\n`;
+    txt += `\n`;
+  });
+  copyTextToClipboard(txt, `已复制 ${items.length} 条到剪贴板`);
+}
+
+function copyTextToClipboard(txt, successMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(() => {
+      showFavToast(successMsg);
+    }).catch(() => fallbackCopy(txt, successMsg));
+  } else {
+    fallbackCopy(txt, successMsg);
+  }
+}
+
+function formatFavDate(s) {
+  if (!s || s.length < 8) return '';
+  return `${s.slice(0,4)}-${s.slice(4,6)}-${s.slice(6,8)}`;
+}
+
+// 复制全部为引用格式
+function fallbackCopy(txt, successMsg) {
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showFavToast(successMsg || '已复制到剪贴板');
+  } catch (e) {
+    showFavToast('复制失败，请手动选择');
+  }
+  ta.remove();
+}
+
+// 导出 JSON 备份
+function exportFavoritesJSON() {
+  const fav = loadFavorites();
+  if (!fav.items.size && !fav.folders.length) {
+    showFavToast('还没有收藏');
+    return;
+  }
+  const data = {
+    exportedAt: new Date().toISOString(),
+    version: 2,
+    folderCount: fav.folders.length,
+    itemCount: fav.items.size,
+    folders: fav.folders,
+    items: Array.from(fav.items.values())
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const dt = new Date().toISOString().slice(0, 10);
+  a.download = `xwlb-favorites-${dt}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showFavToast(`已导出 ${fav.items.size} 条收藏（${fav.folders.length} 个夹）`);
+}
+
+// 导入 JSON
+function importFavoritesJSON(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      const fav = loadFavorites();
+      let foldersAdded = 0, itemsAdded = 0, itemsUpdated = 0;
+      
+      if (data.version === 2 && Array.isArray(data.folders) && Array.isArray(data.items)) {
+        // v2 格式
+        const existingFolderIds = new Set(fav.folders.map(f => f.id));
+        for (const folder of data.folders) {
+          if (!folder.id) continue;
+          if (!existingFolderIds.has(folder.id)) {
+            fav.folders.push(folder);
+            foldersAdded++;
+          }
+        }
+        for (const it of data.items) {
+          if (!it.id) continue;
+          if (!Array.isArray(it.folderIds)) it.folderIds = [];
+          if (fav.items.has(it.id)) {
+            // 合并 folderIds
+            const old = fav.items.get(it.id);
+            const merged = new Set([...(old.folderIds || []), ...it.folderIds]);
+            old.folderIds = Array.from(merged);
+            if (it.note && !old.note) old.note = it.note;
+            itemsUpdated++;
+          } else {
+            fav.items.set(it.id, it);
+            itemsAdded++;
+          }
+        }
+      } else if (Array.isArray(data.favorites)) {
+        // v1 格式（旧）：建一个迁移夹
+        const migId = 'fld_import_' + Date.now();
+        fav.folders.push({
+          id: migId,
+          name: '从备份导入',
+          createdAt: Date.now()
+        });
+        foldersAdded = 1;
+        for (const f of data.favorites) {
+          if (!f.id) continue;
+          if (!Array.isArray(f.folderIds)) f.folderIds = [migId];
+          if (fav.items.has(f.id)) {
+            const old = fav.items.get(f.id);
+            const merged = new Set([...(old.folderIds || []), migId]);
+            old.folderIds = Array.from(merged);
+            itemsUpdated++;
+          } else {
+            fav.items.set(f.id, f);
+            itemsAdded++;
+          }
+        }
+      } else {
+        alert('文件格式不对');
+        return;
+      }
+      
+      saveFavorites();
+      renderFavoritesPage();
+      refreshStarButtonsOnCurrentPage();
+      alert(`导入完成：\n+ ${foldersAdded} 个收藏夹\n+ ${itemsAdded} 条新增\n· ${itemsUpdated} 条已合并`);
+    } catch (err) {
+      alert('导入失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// 收藏夹按钮初始化
+function setupFavoritesPage() {
+  document.getElementById('favExportBtn').addEventListener('click', exportFavoritesJSON);
+  document.getElementById('favImportBtn').addEventListener('click', () => {
+    document.getElementById('favImportInput').click();
+  });
+  document.getElementById('favImportInput').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) importFavoritesJSON(file);
+    e.target.value = ''; // 清空，让下次同名文件也能触发
   });
 }
 
@@ -3631,7 +5958,7 @@ const TOPIC_LIST = Object.keys(TOPIC_TO_CATEGORY);
 
 // 为每个议题分配稳定颜色（按议题在词典里的索引取色）
 const TOPIC_COLOR_PALETTE = [
-  '#c0392b', '#2980b9', '#16a085', '#8e44ad', '#e67e22',
+  '#a70708', '#2980b9', '#16a085', '#8e44ad', '#e67e22',
   '#27ae60', '#f39c12', '#34495e', '#d35400', '#2c3e50',
   '#e74c3c', '#3498db', '#1abc9c', '#9b59b6', '#f1c40f',
   '#2ecc71', '#e84393', '#0984e3', '#00b894', '#fdcb6e',
@@ -4098,6 +6425,10 @@ function setupTabs() {
       url.searchParams.set('tab', tabName);
     }
     history.replaceState(null, '', url);
+    // 切到收藏夹时实时渲染
+    if (tabName === 'favorites') {
+      renderFavoritesPage();
+    }
     // 滚到顶
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
@@ -4108,7 +6439,8 @@ function setupTabs() {
   
   // 启动时从 URL 读
   const params = new URLSearchParams(location.search);
-  const initTab = params.get('tab') === 'trend' ? 'trend' : 'content';
+  const tabParam = params.get('tab');
+  const initTab = (tabParam === 'trend' || tabParam === 'favorites') ? tabParam : 'content';
   activate(initTab);
 }
 
@@ -4117,6 +6449,8 @@ function setupTabs() {
   setupTabs();
   setupDateNav();
   setupAdminMode();
+  setupFavoritesPage();
+  updateFavCountBadge();
   
   // 并行：拉今天的数据 + 拉历史索引
   const [, history] = await Promise.all([
